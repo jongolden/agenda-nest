@@ -8,10 +8,10 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "npm run build",
+    "prepare": "npm run build && husky install",
     "build": "rimraf -rf dist && tsc -p tsconfig.json",
-    "test": "jest --detectOpenHandles",
-    "test:e2e": "jest --config=e2e/jest-e2e.config.ts --detectOpenHandles --runInBand"
+    "test": "npm run test:e2e",
+    "test:e2e": "jest --config=e2e/jest-e2e.config.ts --detectOpenHandles --runInBand --forceExit"
   },
   "author": "Jonathan Golden <jongolden17@gmail.com>",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "husky": "^8.0.1",
+    "husky": "^8.0.0",
     "jest": "^28.1.1",
     "mongodb-memory-server": "^8.6.1",
     "prettier": "^2.7.1",
