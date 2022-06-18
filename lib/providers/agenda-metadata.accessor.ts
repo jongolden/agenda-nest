@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AGENDA_HANDLER_TYPE, AGENDA_JOB_NAME, AGENDA_JOB_OPTIONS } from '../constants';
+import {
+  AGENDA_HANDLER_TYPE,
+  AGENDA_JOB_NAME,
+  AGENDA_JOB_OPTIONS,
+} from '../constants';
 import { HandlerType } from '../enums';
 import { JobOptions } from '../interfaces';
 

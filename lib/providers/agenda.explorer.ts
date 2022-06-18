@@ -23,7 +23,8 @@ export class AgendaExplorer implements OnModuleInit {
   }
 
   private explore() {
-    const instanceWrappers: InstanceWrapper[] = this.discoveryService.getProviders();
+    const instanceWrappers: InstanceWrapper[] =
+      this.discoveryService.getProviders();
 
     instanceWrappers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
@@ -50,52 +51,89 @@ export class AgendaExplorer implements OnModuleInit {
 
     switch (metadata) {
       case HandlerType.EVERY: {
-        const jobMetadata: JobOptions = this.metadataAccessor.getJobMetadata(methodRef);
+        const jobMetadata: JobOptions =
+          this.metadataAccessor.getJobMetadata(methodRef);
 
         // There must be a better way
-        const jobProcessor: Processor & Record<'_name', string> = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const jobProcessor: Processor & Record<'_name', string> =
+          this.wrapFunctionInTryCatchBlocks(methodRef, instance);
 
         return this.orchestrator.addJobProcessor(jobProcessor, jobMetadata);
       }
       case HandlerType.READY: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         return this.orchestrator.addQueueEventHandler(eventHandler, 'ready');
       }
       case HandlerType.ERROR: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         return this.orchestrator.addQueueEventHandler(eventHandler, 'error');
       }
       case HandlerType.START: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         const jobName = this.metadataAccessor.getJobName(methodRef);
 
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'start', jobName);
+        return this.orchestrator.addQueueEventHandler(
+          eventHandler,
+          'start',
+          jobName,
+        );
       }
       case HandlerType.COMPLETE: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         const jobName = this.metadataAccessor.getJobName(methodRef);
 
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'complete', jobName);
+        return this.orchestrator.addQueueEventHandler(
+          eventHandler,
+          'complete',
+          jobName,
+        );
       }
       case HandlerType.SUCCESS: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         const jobName = this.metadataAccessor.getJobName(methodRef);
 
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'success', jobName);
+        return this.orchestrator.addQueueEventHandler(
+          eventHandler,
+          'success',
+          jobName,
+        );
       }
       case HandlerType.FAIL: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+        const eventHandler = this.wrapFunctionInTryCatchBlocks(
+          methodRef,
+          instance,
+        );
 
         const jobName = this.metadataAccessor.getJobName(methodRef);
 
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'fail', jobName);
+        return this.orchestrator.addQueueEventHandler(
+          eventHandler,
+          'fail',
+          jobName,
+        );
       }
-      default: break;
+      default:
+        break;
     }
   }
 
@@ -120,7 +158,6 @@ export class AgendaExplorer implements OnModuleInit {
   private wrapFunctionInTryCatchBlocks(methodRef: Function, instance: object) {
     const handler = (...args: unknown[]) => {
       try {
-
         return methodRef.call(instance, ...args);
       } catch (error) {
         this.logger.error(error);

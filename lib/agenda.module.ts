@@ -2,8 +2,16 @@ import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import Agenda from 'agenda';
 import { AGENDA_MODULE_CONFIG } from './constants';
-import { AgendaConfigFactory, AgendaModuleAsyncConfig, AgendaModuleConfig } from './interfaces';
-import { AgendaExplorer, AgendaMetadataAccessor, AgendaService } from './providers';
+import {
+  AgendaConfigFactory,
+  AgendaModuleAsyncConfig,
+  AgendaModuleConfig,
+} from './interfaces';
+import {
+  AgendaExplorer,
+  AgendaMetadataAccessor,
+  AgendaService,
+} from './providers';
 import { AgendaOrchestrator } from './providers/agenda.orchestrator';
 
 @Module({
@@ -39,11 +47,13 @@ export class AgendaModule {
       providers: [
         ...this.createAsyncProviders(config),
         ...(config.extraProviders || []),
-      ]
+      ],
     };
   }
 
-  private static createAsyncProviders(config: AgendaModuleAsyncConfig): Provider[] {
+  private static createAsyncProviders(
+    config: AgendaModuleAsyncConfig,
+  ): Provider[] {
     if (config.useExisting || config.useFactory) {
       return [this.createAsyncOptionsProvider(config)];
     }
@@ -59,7 +69,9 @@ export class AgendaModule {
     ];
   }
 
-  private static createAsyncOptionsProvider(config: AgendaModuleAsyncConfig): Provider {
+  private static createAsyncOptionsProvider(
+    config: AgendaModuleAsyncConfig,
+  ): Provider {
     if (config.useFactory) {
       return {
         provide: AGENDA_MODULE_CONFIG,

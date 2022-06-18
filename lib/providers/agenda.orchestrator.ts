@@ -1,4 +1,8 @@
-import { Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { Processor } from 'agenda';
 import { JobOptions } from '../interfaces';
 import { AgendaService } from './agenda.service';
@@ -6,12 +10,14 @@ import { AgendaService } from './agenda.service';
 type JobProcessorConfig = {
   handler: Processor;
   options: JobOptions;
-}
+};
 
 export type EventHandler = (...args: any[]) => void;
 
 @Injectable()
-export class AgendaOrchestrator implements OnApplicationBootstrap, OnApplicationShutdown {
+export class AgendaOrchestrator
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private readonly jobProcessors: Map<string, JobProcessorConfig> = new Map();
   private readonly queueEventHandlers: Map<string, EventHandler> = new Map();
 
@@ -39,17 +45,27 @@ export class AgendaOrchestrator implements OnApplicationBootstrap, OnApplication
 
   private scheduleJobs() {
     this.jobProcessors.forEach((config: JobProcessorConfig, name: string) => {
-      this.agendaService.every(config.options.interval as string, name, {}, config.options);
+      this.agendaService.every(
+        config.options.interval as string,
+        name,
+        {},
+        config.options,
+      );
     });
   }
 
   private attachQueueListeners() {
-    this.queueEventHandlers.forEach((handler: EventHandler, eventName: string) => {
-      this.agendaService.on(eventName, handler);
-    });
+    this.queueEventHandlers.forEach(
+      (handler: EventHandler, eventName: string) => {
+        this.agendaService.on(eventName, handler);
+      },
+    );
   }
 
-  addJobProcessor(processor: Processor & Record<'_name', string>, options: JobOptions) {
+  addJobProcessor(
+    processor: Processor & Record<'_name', string>,
+    options: JobOptions,
+  ) {
     const jobName = options.name || processor._name;
 
     this.jobProcessors.set(jobName, {
@@ -58,7 +74,11 @@ export class AgendaOrchestrator implements OnApplicationBootstrap, OnApplication
     });
   }
 
-  addQueueEventHandler(handler: EventHandler, eventName: string, jobName?: string) {
+  addQueueEventHandler(
+    handler: EventHandler,
+    eventName: string,
+    jobName?: string,
+  ) {
     const key = jobName ? `${eventName}:${jobName}` : eventName;
 
     this.queueEventHandlers.set(key, handler);
