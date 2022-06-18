@@ -1,0 +1,5 @@
+export const AGENDA_JOB_NAME = Symbol('AGENDA_JOB_NAME');
+export const AGENDA_JOB_OPTIONS = Symbol('AGENDA_JOB_OPTIONS');
+export const AGENDA_HANDLER_TYPE = Symbol('AGENDA_HANDLER_TYPE');
+export const AGENDA_MODULE_CONFIG = Symbol('AGENDA_MODULE_CONFIG');
+export const AGENDA_QUEUE_EVENT = Symbol('AGENDA_QUEUE_EVENT');
