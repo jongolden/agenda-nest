@@ -15,6 +15,7 @@
   },
   "author": "Jonathan Golden <jongolden17@gmail.com>",
   "license": "MIT",
+  "url": "https://github.com/jongolden/agenda-nestjs#readme",
   "perDependencies": {
     "@nestjs/common": "8.x",
     "@nestjs/core": "8.x",
