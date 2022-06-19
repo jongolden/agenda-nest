@@ -168,21 +168,21 @@ export class JobsQueue {
 
 An instance of an agenda will emit the following events:
 
-| Event listener | Handler method signature / When fired |
-|---|---|
+| Event listener    | Handler method signature / When fired                                          |
+|:------------------|:-------------------------------------------------------------------------------|
 | `@OnQueueReady()` | called when Agenda mongo connection is successfully opened and indices created |
-| `@OnQueueError()` | called when Agenda mongo connection process has thrown an error |
+| `@OnQueueError()` | called when Agenda mongo connection process has thrown an error                |
 
 ### Job Queue Events
 
 An instance of an agenda will emit the following events:
 
-| Event listener | Handler method signature / When fired |
-|----------------|---------------------------------------|
-| `@OnJobStart(name?: string)` | called just before a job starts |
+| Event listener                  | Handler method signature / When fired                             |
+|:--------------------------------|:------------------------------------------------------------------|
+| `@OnJobStart(name?: string)`    | called just before a job starts                                   |
 | `@OnJobComplete(name?: string)` | called when a job finishes, regardless of if it succeeds or fails |
-| `@OnJobSuccess(name?: string)` | called when a job finishes successfully |
-| `@OnJobFail(name?: string)` | called when a job throws an error |
+| `@OnJobSuccess(name?: string)`  | called when a job finishes successfully                           |
+| `@OnJobFail(name?: string)`     | called when a job throws an error                                 |
 
 ## License
 
