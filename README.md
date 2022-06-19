@@ -8,7 +8,7 @@
   - [Configuring an agenda](#configuring-an-agenda)
   - [Job processors](#job-processors)
   - [Job schedulers](#job-schedulers)
-  - [Start/stop the job processor]()
+  - [Start/stop the job processor](#startstop-the-job-processor)
   - [Event listeners](#event-listeners)
   - [Manually working with the queue](#manually-working-with-the-queue)
 - [Contributing](#contributing)
@@ -30,7 +30,7 @@ npm install agenda-nest
 
 ## Usage
 
-## Configuring an Agenda
+### Configuring an agenda
 
 ```js
 @Module({
@@ -47,7 +47,7 @@ npm install agenda-nest
 export class AppModule {}
 ```
 
-## Job Processors
+### Job processors
 
 Job processors are defined using the the `@Define` decorator.  Refer to Agenda's documentation on job definition options.
 
@@ -71,13 +71,13 @@ export class Jobs {
 
 ```
 
-## Job Schedulers
+### Job schedulers
 
-### `@Every(nameOrOptions: string | JobOptions)`
+#### `@Every(nameOrOptions: string | JobOptions)`
 
 Defines a job to run at the given interval
 
-#### Example
+**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -96,11 +96,11 @@ export class Jobs {
 
 ```
 
-### `@Schedule(nameOrOptions: string | JobOptions)`
+#### `@Schedule(nameOrOptions: string | JobOptions)`
 
 Schedules a job to run once at the given time.
 
-#### Example
+**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -119,11 +119,11 @@ export class Jobs {
 
 ```
 
-### `@Now(name?: string)`
+#### `@Now(name?: string)`
 
 Schedules a job to run once immediately.
 
-#### Example
+**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -140,11 +140,11 @@ export class Jobs {
 
 ```
 
-## Start/Stop the Job Processor
+### Start/Stop the Job Processor
 
 lorem ispum
 
-## Event Listeners
+### Event Listeners
 
 Agenda generates a set of useful events when queue and/or job state changes occur. Agenda NestJS provides a set of decorators that allow subscribing to a core set of standard events.
 
@@ -163,7 +163,7 @@ export class JobsQueue {
   ...
 ```
 
-### Agenda Events
+#### Agenda Events
 
 An instance of an agenda will emit the following events:
 
@@ -172,7 +172,7 @@ An instance of an agenda will emit the following events:
 | `@OnQueueReady()` | called when Agenda mongo connection is successfully opened and indices created |
 | `@OnQueueError()` | called when Agenda mongo connection process has thrown an error |
 
-### Job Queue Events
+#### Job Queue Events
 
 An instance of an agenda will emit the following events:
 
