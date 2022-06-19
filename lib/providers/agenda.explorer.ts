@@ -50,19 +50,21 @@ export class AgendaExplorer implements OnModuleInit {
     const metadata = this.metadataAccessor.getHandlerType(methodRef);
 
     switch (metadata) {
+      case HandlerType.DEFINE:
       case HandlerType.NOW:
       case HandlerType.EVERY:
       case HandlerType.SCHEDULE: {
-        const jobMetadata: JobOptions =
+        const jobOptions: JobOptions =
           this.metadataAccessor.getJobMetadata(methodRef);
 
         // There must be a better way
+        // to preserve the method name
         const jobProcessor: Processor & Record<'_name', string> =
           this.wrapFunctionInTryCatchBlocks(methodRef, instance);
 
         return this.orchestrator.addJobProcessor(
           jobProcessor,
-          jobMetadata,
+          jobOptions,
           metadata,
         );
       }

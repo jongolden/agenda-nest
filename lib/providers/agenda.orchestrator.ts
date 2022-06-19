@@ -10,6 +10,7 @@ import { JobOptions } from '../interfaces';
 import { AgendaService } from './agenda.service';
 
 type JobProcessorType =
+  | HandlerType.DEFINE
   | HandlerType.EVERY
   | HandlerType.SCHEDULE
   | HandlerType.NOW;

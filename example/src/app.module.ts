@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
-import { AgendaModule } from 'agenda-nest';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
+import { AgendaModule, AgendaService } from 'agenda-nest';
 import { Tasks } from './tasks.';
 
 @Module({
@@ -13,4 +14,14 @@ import { Tasks } from './tasks.';
   ],
   providers: [Tasks],
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  async onApplicationBootstrap() {
+    const agenda = this.moduleRef.get(AgendaService, { strict: false });
+
+    await agenda._ready;
+
+    agenda.now('defined job', {});
+  }
+}

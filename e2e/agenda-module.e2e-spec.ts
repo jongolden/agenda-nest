@@ -1,4 +1,3 @@
-import { MetadataScanner } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
@@ -23,8 +22,6 @@ describe('Agenda Module', () => {
   describe('handles decorators', () => {
     let testingModule: TestingModule;
 
-    let metadataScanner: MetadataScanner;
-
     let agendaService: AgendaService;
 
     let jobsHandler: JobsHandler;
@@ -48,8 +45,6 @@ describe('Agenda Module', () => {
         providers: [JobsHandler],
       }).compile();
 
-      metadataScanner = testingModule.get(MetadataScanner);
-
       agendaService = testingModule.get(AgendaService);
 
       jobsHandler = testingModule.get(JobsHandler);
@@ -71,6 +66,12 @@ describe('Agenda Module', () => {
       }
 
       await testingModule.close();
+    });
+
+    it('should manually run a defined job', async () => {
+      await agendaService.now('defined job', {});
+      await wait(100); // agenda resolves before the job is complete
+      expect(jobsHandler.handled).toContain('definedJob');
     });
 
     it('should schedule a job to run at the given interval', () => {

@@ -1,4 +1,5 @@
 export enum HandlerType {
+  DEFINE = 'define',
   EVERY = 'every',
   SCHEDULE = 'schedule',
   NOW = 'now',

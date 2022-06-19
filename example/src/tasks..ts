@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Every, OnJobComplete, OnJobStart, OnQueueError, OnQueueReady } from 'agenda-nest';
+import { Define, Every, OnJobComplete, OnJobStart, OnQueueError, OnQueueReady } from 'agenda-nest';
 
 @Injectable()
 export class Tasks {
@@ -28,6 +28,11 @@ export class Tasks {
   @OnJobStart('log')
   onLogStart() {
     this.logger.log('log job started');
+  }
+
+  @Define('defined job')
+  handleDefinedJob() {
+    this.logger.log('handling defined job');
   }
 
   @Every('10 seconds')

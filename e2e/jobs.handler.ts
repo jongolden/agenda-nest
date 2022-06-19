@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Job } from 'agenda';
 import {
   Every,
   Schedule,
@@ -8,11 +9,17 @@ import {
   OnJobComplete,
   OnJobSuccess,
   OnJobFail,
+  Define,
 } from '../lib';
 
 @Injectable()
 export class JobsHandler {
   handled: string[] = [];
+
+  @Define('defined job')
+  definedJob() {
+    this.handled.push(this.definedJob.name);
+  }
 
   @Every('1 second')
   every1Second() {
