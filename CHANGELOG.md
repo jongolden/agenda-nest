@@ -7,4 +7,4 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* initial development ([55cbc11](https://github.com/jongolden/agenda-nestjs/commit/55cbc1199fe780aa3cc6c18d5e64958483927f37))
+* initial development ([55cbc11](https://github.com/jongolden/agenda-nest/commit/55cbc1199fe780aa3cc6c18d5e64958483927f37))
