@@ -1,17 +1,20 @@
 # Agenda Nest
-> A NestJS module for Agenda
+
+<a href="https://www.npmjs.com/~agenda-nest" target="_blank"><img src="https://img.shields.io/npm/v/agenda-nest.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~agenda-nest" target="_blank"><img src="https://img.shields.io/npm/l/agenda-nest.svg" alt="Package License" /></a>
+</p>
+
+A NestJS module for Agenda
 
 ## Table of Contents
 - [Background](#background)
 - [Install](#install)
-- [Usage](#usage)
-  - [Configuring an agenda](#configuring-an-agenda)
-  - [Job processors](#job-processors)
-  - [Job schedulers](#job-schedulers)
-  - [Start/stop the job processor](#startstop-the-job-processor)
-  - [Event listeners](#event-listeners)
-  - [Manually working with the queue](#manually-working-with-the-queue)
-- [Contributing](#contributing)
+- [Configuring an agenda](#configuring-an-agenda)
+- [Job processors](#job-processors)
+- [Job schedulers](#job-schedulers)
+- [Start/stop the job processor](#startstop-the-job-processor)
+- [Event listeners](#event-listeners)
+- [Manually working with the queue](#manually-working-with-the-queue)
 - [License](#license)
 
 ## Background
@@ -28,11 +31,13 @@ Agenda uses MongoDB to persist job data, so you'll need to have Mongo (or mongoo
 npm install agenda-nest
 ```
 
-## Usage
+## Configuring an agenda
 
-### Configuring an agenda
+As Agenda Nest is a wrapper for Agenda, it is configurable with same properties as the Agenda instance. Refer to [AgendaConfig](https://github.com/agenda/agenda/blob/master/lib/agenda/index.ts#L39) for the complete configuration type.
 
 ```js
+import { AgendaModule } from 'agenda-nest';
+
 @Module({
   imports: [
     AgendaModule.register({
@@ -47,11 +52,10 @@ npm install agenda-nest
 export class AppModule {}
 ```
 
-### Job processors
+## Job processors
 
 Job processors are defined using the the `@Define` decorator.  Refer to Agenda's documentation on job definition options.
 
-#### Example
 ```js
 @Injectable()
 export class Jobs {
@@ -71,13 +75,12 @@ export class Jobs {
 
 ```
 
-### Job schedulers
+## Job schedulers
 
-#### `@Every(nameOrOptions: string | JobOptions)`
+### `@Every(nameOrOptions: string | JobOptions)`
 
 Defines a job to run at the given interval
 
-**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -96,11 +99,10 @@ export class Jobs {
 
 ```
 
-#### `@Schedule(nameOrOptions: string | JobOptions)`
+### `@Schedule(nameOrOptions: string | JobOptions)`
 
 Schedules a job to run once at the given time.
 
-**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -119,11 +121,10 @@ export class Jobs {
 
 ```
 
-#### `@Now(name?: string)`
+### `@Now(name?: string)`
 
 Schedules a job to run once immediately.
 
-**Example**
 ```js
 @Injectable()
 export class Jobs {
@@ -140,11 +141,11 @@ export class Jobs {
 
 ```
 
-### Start/Stop the Job Processor
+## Start/stop the job processor
 
 lorem ispum
 
-### Event Listeners
+## Event Listeners
 
 Agenda generates a set of useful events when queue and/or job state changes occur. Agenda NestJS provides a set of decorators that allow subscribing to a core set of standard events.
 
@@ -163,7 +164,7 @@ export class JobsQueue {
   ...
 ```
 
-#### Agenda Events
+### Agenda Events
 
 An instance of an agenda will emit the following events:
 
@@ -172,7 +173,7 @@ An instance of an agenda will emit the following events:
 | `@OnQueueReady()` | called when Agenda mongo connection is successfully opened and indices created |
 | `@OnQueueError()` | called when Agenda mongo connection process has thrown an error |
 
-#### Job Queue Events
+### Job Queue Events
 
 An instance of an agenda will emit the following events:
 
@@ -182,3 +183,7 @@ An instance of an agenda will emit the following events:
 | `@OnJobComplete(name?: string)` | called when a job finishes, regardless of if it succeeds or fails |
 | `@OnJobSuccess(name?: string)` | called when a job finishes successfully |
 | `@OnJobFail(name?: string)` | called when a job throws an error |
+
+## License
+
+Agenda Nest is [MIT licensed](https://github.com/jongolden/agenda-nest/blob/main/LICENSE).
