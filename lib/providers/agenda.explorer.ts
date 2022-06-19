@@ -50,7 +50,9 @@ export class AgendaExplorer implements OnModuleInit {
     const metadata = this.metadataAccessor.getHandlerType(methodRef);
 
     switch (metadata) {
-      case HandlerType.EVERY: {
+      case HandlerType.NOW:
+      case HandlerType.EVERY:
+      case HandlerType.SCHEDULE: {
         const jobMetadata: JobOptions =
           this.metadataAccessor.getJobMetadata(methodRef);
 
@@ -58,66 +60,24 @@ export class AgendaExplorer implements OnModuleInit {
         const jobProcessor: Processor & Record<'_name', string> =
           this.wrapFunctionInTryCatchBlocks(methodRef, instance);
 
-        return this.orchestrator.addJobProcessor(jobProcessor, jobMetadata);
-      }
-      case HandlerType.READY: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(
-          methodRef,
-          instance,
+        return this.orchestrator.addJobProcessor(
+          jobProcessor,
+          jobMetadata,
+          metadata,
         );
-
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'ready');
       }
+      case HandlerType.READY:
       case HandlerType.ERROR: {
         const eventHandler = this.wrapFunctionInTryCatchBlocks(
           methodRef,
           instance,
         );
 
-        return this.orchestrator.addQueueEventHandler(eventHandler, 'error');
+        return this.orchestrator.addQueueEventHandler(eventHandler, metadata);
       }
-      case HandlerType.START: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(
-          methodRef,
-          instance,
-        );
-
-        const jobName = this.metadataAccessor.getJobName(methodRef);
-
-        return this.orchestrator.addQueueEventHandler(
-          eventHandler,
-          'start',
-          jobName,
-        );
-      }
-      case HandlerType.COMPLETE: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(
-          methodRef,
-          instance,
-        );
-
-        const jobName = this.metadataAccessor.getJobName(methodRef);
-
-        return this.orchestrator.addQueueEventHandler(
-          eventHandler,
-          'complete',
-          jobName,
-        );
-      }
-      case HandlerType.SUCCESS: {
-        const eventHandler = this.wrapFunctionInTryCatchBlocks(
-          methodRef,
-          instance,
-        );
-
-        const jobName = this.metadataAccessor.getJobName(methodRef);
-
-        return this.orchestrator.addQueueEventHandler(
-          eventHandler,
-          'success',
-          jobName,
-        );
-      }
+      case HandlerType.START:
+      case HandlerType.COMPLETE:
+      case HandlerType.SUCCESS:
       case HandlerType.FAIL: {
         const eventHandler = this.wrapFunctionInTryCatchBlocks(
           methodRef,
@@ -128,7 +88,7 @@ export class AgendaExplorer implements OnModuleInit {
 
         return this.orchestrator.addQueueEventHandler(
           eventHandler,
-          'fail',
+          metadata,
           jobName,
         );
       }

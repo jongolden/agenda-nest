@@ -4,11 +4,19 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { Processor } from 'agenda';
+import { NonRepeatableJobOptions, RepeatableJobOptions } from '../decorators';
+import { HandlerType } from '../enums';
 import { JobOptions } from '../interfaces';
 import { AgendaService } from './agenda.service';
 
+type JobProcessorType =
+  | HandlerType.EVERY
+  | HandlerType.SCHEDULE
+  | HandlerType.NOW;
+
 type JobProcessorConfig = {
   handler: Processor;
+  type: JobProcessorType;
   options: JobOptions;
 };
 
@@ -23,6 +31,36 @@ export class AgendaOrchestrator
 
   constructor(private readonly agendaService: AgendaService) {}
 
+  // TODO: clean this up
+  private async scheduleJobs() {
+    for await (const [name, config] of this.jobProcessors.entries()) {
+      if (config.type === HandlerType.NOW) {
+        await this.agendaService.now(name, {});
+      } else if (config.type === HandlerType.EVERY) {
+        await this.agendaService.every(
+          (config.options as RepeatableJobOptions).interval,
+          name,
+          {},
+          config.options,
+        );
+      } else if (config.type === HandlerType.SCHEDULE) {
+        await this.agendaService.schedule(
+          (config.options as NonRepeatableJobOptions).when,
+          name,
+          {},
+        );
+      }
+    }
+  }
+
+  private attachQueueListeners() {
+    this.queueEventHandlers.forEach(
+      (handler: EventHandler, eventName: string) => {
+        this.agendaService.on(eventName, handler);
+      },
+    );
+  }
+
   async onApplicationBootstrap() {
     this.attachQueueListeners();
 
@@ -30,7 +68,7 @@ export class AgendaOrchestrator
 
     await this.agendaService.start();
 
-    this.scheduleJobs();
+    await this.scheduleJobs();
   }
 
   async onApplicationShutdown() {
@@ -43,33 +81,16 @@ export class AgendaOrchestrator
     });
   }
 
-  private scheduleJobs() {
-    this.jobProcessors.forEach((config: JobProcessorConfig, name: string) => {
-      this.agendaService.every(
-        config.options.interval as string,
-        name,
-        {},
-        config.options,
-      );
-    });
-  }
-
-  private attachQueueListeners() {
-    this.queueEventHandlers.forEach(
-      (handler: EventHandler, eventName: string) => {
-        this.agendaService.on(eventName, handler);
-      },
-    );
-  }
-
   addJobProcessor(
     processor: Processor & Record<'_name', string>,
     options: JobOptions,
+    type: JobProcessorType,
   ) {
     const jobName = options.name || processor._name;
 
     this.jobProcessors.set(jobName, {
       handler: processor,
+      type,
       options,
     });
   }

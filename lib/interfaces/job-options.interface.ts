@@ -4,4 +4,4 @@ import {
 } from 'agenda';
 
 export type JobOptions = AgendaDefineOptions &
-  AgendaJobOptions & { name?: string; interval?: string };
+  AgendaJobOptions & { name?: string };

@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import { MetadataScanner } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
-import { Every, OnJobComplete, OnJobFail, OnJobStart, OnJobSuccess, OnQueueReady } from '../lib/decorators';
 import { AgendaService } from '../lib/providers';
+import { JobsHandler } from './jobs.handler';
 
 let mongo: MongoMemoryServer;
 
@@ -16,58 +15,12 @@ const databaseProvider = {
   }
 };
 
-
 const wait = (interval: number) => new Promise<void>((resolve) => {
   setTimeout(() => resolve(), interval);
-})
+});
 
 describe('Agenda Module', () => {
   describe('handles decorators', () => {
-    class JobsHandler {
-      handled: string[] = [];
-
-      @OnQueueReady()
-      onQueueReady() {
-        this.handled.push('OnQueReady');
-      }
-
-      @Every('1 second')
-      testJob() {
-        this.handled.push('testJob');
-      }
-
-      @OnJobStart()
-      onJobStart() {
-        this.handled.push('OnJobStart');
-      }
-
-      @OnJobStart('testJob')
-      onTestJobStart() {
-        this.handled.push('OnJobStart:testJob');
-      }
-
-      @OnJobComplete('testJob')
-      onTestJobComplete() {
-        this.handled.push('OnJobComplete:testJob');
-      }
-
-      @OnJobSuccess('testJob')
-      onTestJobSuccess() {
-        this.handled.push('OnJobSuccess:testJob');
-      }
-
-      @Every({ name: 'test failure', interval: '1 second' })
-      testFailedJob() {
-        this.handled.push('test failure');
-        throw new Error('job failed');
-      }
-
-      @OnJobFail('test failure')
-      onTestFailure(error: Error) {
-        this.handled.push('OnJobFail:test failure');
-      }
-    }
-
     let testingModule: TestingModule;
 
     let metadataScanner: MetadataScanner;
@@ -101,8 +54,6 @@ describe('Agenda Module', () => {
 
       jobsHandler = testingModule.get(JobsHandler);
 
-      jest.spyOn(metadataScanner, 'scanFromPrototype');
-
       await testingModule.init();
 
       await agendaService._ready;
@@ -122,24 +73,36 @@ describe('Agenda Module', () => {
       await testingModule.close();
     });
 
-    it('should use MetadataScanner#scanFromPrototype when exploring', () => {
-      expect(metadataScanner.scanFromPrototype).toHaveBeenCalled();
+    it('should schedule a job to run at the given interval', () => {
+      expect(jobsHandler.handled).toContain('every1Second');
     });
 
-    it('should invoke the decorated methods', () => {
-      const jobsHandler = testingModule.get(JobsHandler);
+    it('should run handle jobs scheduled to run immediately', () => {
+      expect(jobsHandler.handled).toContain('runNow');
+    });
 
-      expect(jobsHandler.handled).toEqual(expect.arrayContaining([
-        'OnQueReady',
-        'OnJobStart',
-        'test failure',
-        'OnJobFail:test failure',
-        'OnJobStart',
-        'OnJobStart:testJob',
-        'testJob',
-        'OnJobSuccess:testJob',
-        'OnJobComplete:testJob'
-      ]));
+    it('should notify when the queue is ready', () => {
+      expect(jobsHandler.handled).toContain('onQueueReady');
+    });
+
+    it('should notify when any job has started', () => {
+      expect(jobsHandler.handled).toContain('onJobStart');
+    });
+
+    it('should notify when a specific job has started', () => {
+      expect(jobsHandler.handled).toContain('onTestJobStart');
+    });
+
+    it('should notify when a specifc job has completed', () => {
+      expect(jobsHandler.handled).toContain('onTestJobComplete');
+    });
+
+    it('should notify when a job has completed', () => {
+      expect(jobsHandler.handled).toContain('onTestJobSuccess');
+    });
+
+    it('should notify when a job has failed', () => {
+      expect(jobsHandler.handled).toContain('onJobFail');
     });
   });
 });
