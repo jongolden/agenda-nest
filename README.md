@@ -9,7 +9,7 @@ A NestJS module for Agenda
 ## Table of Contents
 - [Background](#background)
 - [Install](#install)
-- [Configuring an agenda](#configuring-an-agenda)
+- [Configure Agenda](#configure-agenda)
 - [Job processors](#job-processors)
 - [Job schedulers](#job-schedulers)
 - [Start/stop the job processor](#startstop-the-job-processor)
@@ -31,7 +31,7 @@ Agenda uses MongoDB to persist job data, so you'll need to have Mongo (or mongoo
 npm install agenda-nest
 ```
 
-## Configuring an agenda
+## Configure Agenda
 
 As Agenda Nest is a wrapper for Agenda, it is configurable with same properties as the Agenda instance. Refer to [AgendaConfig](https://github.com/agenda/agenda/blob/master/lib/agenda/index.ts#L39) for the complete configuration type.
 
