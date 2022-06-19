@@ -12,7 +12,6 @@ A NestJS module for Agenda
 - [Configure Agenda](#configure-agenda)
 - [Job processors](#job-processors)
 - [Job schedulers](#job-schedulers)
-- [Start/stop the job processor](#startstop-the-job-processor)
 - [Event listeners](#event-listeners)
 - [Manually working with the queue](#manually-working-with-the-queue)
 - [License](#license)
@@ -141,10 +140,6 @@ export class Jobs {
 
 ```
 
-## Start/stop the job processor
-
-lorem ispum
-
 ## Event Listeners
 
 Agenda generates a set of useful events when queue and/or job state changes occur. Agenda NestJS provides a set of decorators that allow subscribing to a core set of standard events.
@@ -166,23 +161,23 @@ export class JobsQueue {
 
 ### Agenda Events
 
-An instance of an agenda will emit the following events:
+An instance of an agenda will emit the queue events listed below. Use the corresponding method decorator to listen for and handle each event.
 
-| Event listener    | Handler method signature / When fired                                          |
-|:------------------|:-------------------------------------------------------------------------------|
-| `@OnQueueReady()` | called when Agenda mongo connection is successfully opened and indices created |
-| `@OnQueueError()` | called when Agenda mongo connection process has thrown an error                |
+| Event   | Listener          |                                                                                |
+|:--------|:------------------|:-------------------------------------------------------------------------------|
+| `ready` | `@OnQueueReady()` | called when Agenda mongo connection is successfully opened and indices created |
+| `error` | `@OnQueueError()` | called when Agenda mongo connection process has thrown an error                |
 
 ### Job Queue Events
 
-An instance of an agenda will emit the following events:
+An instance of an agenda will emit the job events listed below. Use the corresponding method decorator to listen for and handle each event.
 
-| Event listener                  | Handler method signature / When fired                             |
-|:--------------------------------|:------------------------------------------------------------------|
-| `@OnJobStart(name?: string)`    | called just before a job starts                                   |
-| `@OnJobComplete(name?: string)` | called when a job finishes, regardless of if it succeeds or fails |
-| `@OnJobSuccess(name?: string)`  | called when a job finishes successfully                           |
-| `@OnJobFail(name?: string)`     | called when a job throws an error                                 |
+| Event                             | Listener                        |                                                                   |
+|:----------------------------------|:--------------------------------|:------------------------------------------------------------------|
+| `start` or `start:job name`       | `@OnJobStart(name?: string)`    | called just before a job starts                                   |
+| `complete` or `complete:job name` | `@OnJobComplete(name?: string)` | called when a job finishes, regardless of if it succeeds or fails |
+| `success` or `success:job name`   | `@OnJobSuccess(name?: string)`  | called when a job finishes successfully                           |
+| `fail` or `fail:job name`         | `@OnJobFail(name?: string)`     | called when a job throws an error                                 |
 
 ## License
 
