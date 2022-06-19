@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AgendaModule } from 'agenda-nestjs';
+import { AgendaModule } from 'agenda-nest';
 import { Tasks } from './tasks.';
 
 @Module({

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Every, OnJobComplete, OnJobStart, OnQueueError, OnQueueReady } from 'agenda-nestjs';
+import { Every, OnJobComplete, OnJobStart, OnQueueError, OnQueueReady } from 'agenda-nest';
 
 @Injectable()
 export class Tasks {
