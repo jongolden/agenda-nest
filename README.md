@@ -53,7 +53,7 @@ export class AppModule {}
 
 ## Job processors
 
-Job processors are defined using the the `@Define` decorator.  Refer to Agenda's documentation on job definition options.
+Job processors are defined using the `@Define` decorator.  Refer to Agenda's documentation on job definition options.
 
 ```js
 @Injectable()
