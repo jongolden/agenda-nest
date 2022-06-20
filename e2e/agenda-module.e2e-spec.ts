@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import Agenda from 'agenda';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
-import { AgendaService } from '../lib/providers';
 import { JobsHandler } from './jobs.handler';
 
 let mongo: MongoMemoryServer;
@@ -22,42 +22,40 @@ describe('Agenda Module', () => {
   describe('handles decorators', () => {
     let testingModule: TestingModule;
 
-    let agendaService: AgendaService;
-
     let jobsHandler: JobsHandler;
+
+    let agenda: Agenda;
 
     beforeAll(async () => {
       testingModule = await Test.createTestingModule({
         imports: [
-          AgendaModule.registerAsync({
+          AgendaModule.forRootAsync({
             useFactory: (mongoUri: string) => {
-              return {
-                db: {
-                  address: mongoUri,
-                  collection: 'agenda-queue',
-                },
-              };
+              return { db: { address: mongoUri } };
             },
             inject: ['MONGO_URI'],
             extraProviders: [databaseProvider],
+          }),
+          AgendaModule.forFeature({
+            queue: 'jobs',
           }),
         ],
         providers: [JobsHandler],
       }).compile();
 
-      agendaService = testingModule.get(AgendaService);
-
       jobsHandler = testingModule.get(JobsHandler);
 
-      await testingModule.init();
+      agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
 
-      await agendaService._ready;
+      await agenda._ready;
+
+      await testingModule.init();
 
       await wait(1000);
     });
 
     afterAll(async () => {
-      await agendaService.stop();
+      await agenda.stop();
 
       if (mongo) {
         await mongo.stop({
@@ -68,22 +66,12 @@ describe('Agenda Module', () => {
       await testingModule.close();
     });
 
-    it('should manually run a defined job', async () => {
-      await agendaService.now('defined job', {});
-      await wait(100); // agenda resolves before the job is complete
-      expect(jobsHandler.handled).toContain('definedJob');
-    });
-
     it('should schedule a job to run at the given interval', () => {
       expect(jobsHandler.handled).toContain('every1Second');
     });
 
     it('should run handle jobs scheduled to run immediately', () => {
       expect(jobsHandler.handled).toContain('runNow');
-    });
-
-    it('should notify when the queue is ready', () => {
-      expect(jobsHandler.handled).toContain('onQueueReady');
     });
 
     it('should notify when any job has started', () => {

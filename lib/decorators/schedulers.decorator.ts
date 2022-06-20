@@ -1,12 +1,16 @@
 import { applyDecorators, SetMetadata } from '@nestjs/common';
-import { AGENDA_HANDLER_TYPE, AGENDA_JOB_OPTIONS } from '../constants';
-import { HandlerType } from '../enums';
+import { JOB_PROCESSOR_TYPE, AGENDA_JOB_OPTIONS } from '../constants';
+import { JobProcessorType } from '../enums';
 import { JobOptions } from '../interfaces/job-options.interface';
 
 export type RepeatableJobOptions = JobOptions & Record<'interval', string>;
 
 export type NonRepeatableJobOptions = JobOptions &
   Record<'when', string | Date>;
+
+export type AgendaModuleJobOptions =
+  | RepeatableJobOptions
+  | NonRepeatableJobOptions;
 
 export function Every(interval: string): MethodDecorator;
 export function Every(options: RepeatableJobOptions): MethodDecorator;
@@ -20,7 +24,7 @@ export function Every(
 
   return applyDecorators(
     SetMetadata(AGENDA_JOB_OPTIONS, options),
-    SetMetadata(AGENDA_HANDLER_TYPE, HandlerType.EVERY),
+    SetMetadata(JOB_PROCESSOR_TYPE, JobProcessorType.EVERY),
   );
 }
 
@@ -32,7 +36,7 @@ export function Schedule(whenOrOptions: string | NonRepeatableJobOptions) {
 
   return applyDecorators(
     SetMetadata(AGENDA_JOB_OPTIONS, options),
-    SetMetadata(AGENDA_HANDLER_TYPE, HandlerType.SCHEDULE),
+    SetMetadata(JOB_PROCESSOR_TYPE, JobProcessorType.SCHEDULE),
   );
 }
 
@@ -41,6 +45,6 @@ export function Now(name?: string): MethodDecorator {
 
   return applyDecorators(
     SetMetadata(AGENDA_JOB_OPTIONS, options),
-    SetMetadata(AGENDA_HANDLER_TYPE, HandlerType.NOW),
+    SetMetadata(JOB_PROCESSOR_TYPE, JobProcessorType.NOW),
   );
 }
