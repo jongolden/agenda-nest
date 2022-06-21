@@ -1,6 +1,6 @@
 {
   "name": "agenda-nest",
-  "version": "0.0.4",
+  "version": "0.0.5-0",
   "description": "A NestJS module for Agenda",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,8 @@
     "build": "rimraf -rf dist && tsc -p tsconfig.json",
     "lint": "eslint 'lib/**/*.ts'",
     "test": "npm run lint && npm run test:e2e",
-    "test:e2e": "jest --config=e2e/jest-e2e.config.ts --detectOpenHandles --runInBand --forceExit"
+    "test:e2e": "jest --config=e2e/jest-e2e.config.ts --detectOpenHandles --runInBand --forceExit",
+    "release": "npx standard-version"
   },
   "author": "Jonathan Golden <jongolden17@gmail.com>",
   "license": "MIT",
