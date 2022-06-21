@@ -13,7 +13,7 @@ A NestJS module for Agenda
 - [Job processors](#job-processors)
 - [Job schedulers](#job-schedulers)
 - [Event listeners](#event-listeners)
-- [Manually working with the queue](#manually-working-with-the-queue)
+- [Manually working with a queue](#manually-working-with-a-queue)
 - [License](#license)
 
 ## Background
@@ -39,10 +39,10 @@ import { AgendaModule } from 'agenda-nest';
 
 @Module({
   imports: [
-    AgendaModule.register({
+    AgendaModule.forRoot({
+      processEvery: '3 minutes',
       db: {
         addresss: 'mongodb://localhost:27017',
-        collection: 'job-queue',
       },
     }),
   ],
@@ -51,48 +51,73 @@ import { AgendaModule } from 'agenda-nest';
 export class AppModule {}
 ```
 
-## Job processors
+## Configure queues
 
-Job processors are defined using the `@Define` decorator.  Refer to Agenda's documentation on job definition options.
+Agenda Nest can manage multiple queues within your application.  To configure a new queue use `AgendaModule.forFeature(queueName: string, config: AgendaConfig)`.  Queues will inherit the configuration provided to `Agenda.forRoot`, merging and overriding properties provided to the queue.
 
 ```js
-@Injectable()
-export class Jobs {
-  @Define('say hello')
-  sayHello(job: Job) {
-    this.logger.log(`Hello  ${job.attrs.userName}!`)
-  }
+import { AgendaModule } from 'agenda-nest';
 
-  @Define('some long running job')
-  async handleSomeLengthyTask(job: Job) {
-    const data = await doSomeLengthyTask();
+@Module({
+  imports: [
+    AgendaModule.forFeature('notifications', {
+      processEvery: '5 minutes',
+    }),
+  ],
+})
+export class NotificationsModule {}
+```
 
-    await formatThatData(data);
-    await sendThatData(data);
-  }
-}
+## Job processors
+
+Job processors are methods defined on a class declared with the `@Queue(name: string)` decorator.  The queue name will be used to create the MongoDB collection, formatted as `"{queue Name}-queue"`, for each queue.
+
+```js
+import { Queue } from 'agenda-nest';
+
+@Queue('notifications')
+export class NotificationsQueue {}
 
 ```
 
+To **define**, but not schedule, a job on the queue, use the `@Define()` decorator as shown below.  To define a scheduled job, see [Job schedulers](#job-schedulers).
+
+```js
+import { Define, Queue, Job } from 'agenda-nest';
+
+@Queue('notifications')
+export class NotificationsQueue {
+  @Define()
+  sendNotification(job: Job) {}
+}
+```
+
 ## Job schedulers
+
+To define and schedule a job on the queue, use one of the `@Every()`, `@Schedule()`, or `@Now()` decorators. See Agenda's [Creating Jobs](https://github.com/agenda/agenda#creating-jobs) documentation for an explanation on the behavior of each.
 
 ### `@Every(nameOrOptions: string | JobOptions)`
 
 Defines a job to run at the given interval
 
 ```js
-@Injectable()
-export class Jobs {
-  @Every('15 minutes')
-  async printAnalyticsReport(job: Job) {
-    const users = await User.doSomethingReallyIntensive();
-    processUserData(users);
-  }
+import { Every, Queue, Job } from 'agenda-nest';
 
+@Queue('notifications')
+export class NotificationsQueue {
   @Every({ name: 'send notifications', interval: '15 minutes' })
   async sendNotifications(job: Job) {
     const users = await User.doSomethingReallyIntensive();
     sendNotification(users, "Welcome!");
+  }
+}
+
+@Queue('reports')
+export class ReportsQueue {
+  @Every('15 minutes')
+  async printAnalyticsReport(job: Job) {
+    const users = await User.doSomethingReallyIntensive();
+    processUserData(users);
   }
 }
 
@@ -103,18 +128,23 @@ export class Jobs {
 Schedules a job to run once at the given time.
 
 ```js
-@Injectable()
-export class Jobs {
-  @Schedule('tomorrow at noon')
-  async printAnalyticsReport(job: Job) {
-    const users = await User.doSomethingReallyIntensive();
-    processUserData(users);
-  }
+import { Schedule, Queue, Job } from 'agenda-nest';
 
+@Queue('notifications')
+export class NotificationsQueue {
   @Scheduler({ name: 'send notifications', when: 'tomorrow at noon' })
   async sendNotifications(job: Job) {
     const users = await User.doSomethingReallyIntensive();
     sendNotification(users, "Welcome!");
+  }
+}
+
+@Queue('reports')
+export class ReportsQueue {
+  @Schedule('tomorrow at noon')
+  async printAnalyticsReport(job: Job) {
+    const users = await User.doSomethingReallyIntensive();
+    processUserData(users);
   }
 }
 
@@ -125,8 +155,10 @@ export class Jobs {
 Schedules a job to run once immediately.
 
 ```js
-@Injectable()
-export class Jobs {
+import { Now, Queue, Job } from 'agenda-nest';
+
+@Queue('dance')
+export class DanceQueue {
   @Now()
   async doTheHokeyPokey(job: Job) {
     hokeyPokey();
@@ -178,6 +210,23 @@ An instance of an agenda will emit the job events listed below. Use the correspo
 | `complete` or `complete:job name` | `@OnJobComplete(name?: string)` | called when a job finishes, regardless of if it succeeds or fails |
 | `success` or `success:job name`   | `@OnJobSuccess(name?: string)`  | called when a job finishes successfully                           |
 | `fail` or `fail:job name`         | `@OnJobFail(name?: string)`     | called when a job throws an error                                 |
+
+## Manually working with a queue
+
+You can access any registered queue using the `@InjectQueue(queueName)` decorator, which will inject the instance of `Agenda` for the given queue name. See Agenda's [documentation](https://github.com/agenda/agenda#table-of-contents) for the available API.
+
+```js
+@Injectable()
+export class NotificationsService {
+  constructor(@InjectQueue('notificiations') private queue: Agenda) {}
+
+  async scheduleNotification(sendAt: string) {
+    await this.queue.schedule('tomorrow at noon', 'sendNotification', {
+      to: 'user@example.com',
+    });
+  }
+}
+```
 
 ## License
 
