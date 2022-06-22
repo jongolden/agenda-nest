@@ -42,7 +42,6 @@ export class JobsHandler {
 
   @OnQueueReady()
   onQueueReady() {
-    console.log('queue is ready');
     this.handled.push(this.onQueueReady.name);
   }
 

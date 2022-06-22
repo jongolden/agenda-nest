@@ -8,9 +8,7 @@ import { AgendaConfig } from 'agenda';
 
 export type AgendaModuleConfig = AgendaConfig;
 
-export type AgendaQueueConfig = Omit<AgendaModuleConfig, 'mongo' | 'db'> & {
-  queue: string;
-};
+export type AgendaQueueConfig = Omit<AgendaModuleConfig, 'mongo' | 'db'>;
 
 export interface AgendaConfigFactory<T> {
   createAgendaConfig(): Promise<T> | T;

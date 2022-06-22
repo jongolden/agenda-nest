@@ -61,12 +61,15 @@ export class AgendaModule {
     };
   }
 
-  static forFeature(config: AgendaQueueConfig): DynamicModule {
-    const queueToken = getQueueToken(config.queue);
+  static registerQueue(
+    name: string,
+    config: AgendaQueueConfig = {},
+  ): DynamicModule {
+    const queueToken = getQueueToken(name);
 
-    const queueConfigToken = getQueueConfigToken(config.queue);
+    const queueConfigToken = getQueueConfigToken(name);
 
-    const providers = [
+    const providers: Provider[] = [
       {
         provide: queueConfigToken,
         useValue: config,

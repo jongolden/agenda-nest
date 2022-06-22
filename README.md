@@ -55,14 +55,14 @@ export class AppModule {}
 
 ## Configure queues
 
-Agenda Nest can manage multiple queues within your application.  To configure a new queue use `AgendaModule.forFeature(queueName: string, config: AgendaConfig)`.  Queues will inherit the configuration provided to `Agenda.forRoot`, merging and overriding properties provided to the queue.
+Agenda Nest can manage multiple queues within your application.  To configure a new queue use `AgendaModule.registerQueue(queueName: string, config: AgendaConfig)`.  Queues will inherit the configuration provided to `Agenda.forRoot`, merging and overriding properties provided to the queue.
 
 ```js
 import { AgendaModule } from 'agenda-nest';
 
 @Module({
   imports: [
-    AgendaModule.forFeature('notifications', {
+    AgendaModule.registerQueue('notifications', {
       processEvery: '5 minutes',
     }),
   ],

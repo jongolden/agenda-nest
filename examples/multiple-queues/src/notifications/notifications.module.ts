@@ -4,9 +4,7 @@ import { NotificationsQueue } from './notifications.queue';
 
 @Module({
   imports: [
-    AgendaModule.forFeature({
-      queue: 'notifications',
-    }),
+    AgendaModule.registerQueue('notifications'),
   ],
   providers: [NotificationsQueue],
 })

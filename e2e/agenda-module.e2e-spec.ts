@@ -38,9 +38,7 @@ describe('Agenda Module', () => {
             inject: ['MONGO_URI'],
             extraProviders: [databaseProvider],
           }),
-          AgendaModule.forFeature({
-            queue: 'jobs',
-          }),
+          AgendaModule.registerQueue('jobs'),
         ],
         providers: [JobsHandler],
       }).compile();

@@ -4,9 +4,7 @@ import { ReportsQueue } from './reports.queue';
 
 @Module({
   imports: [
-    AgendaModule.forFeature({
-      queue: 'reports',
-    }),
+    AgendaModule.registerQueue('reports'),
   ],
   providers: [ReportsQueue],
 })
