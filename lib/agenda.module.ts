@@ -1,7 +1,7 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import Agenda from 'agenda';
-import { AGENDA_MODULE_CONFIG } from './constants';
+import { AGENDA_MODULE_CONFIG, DATABASE_CONNECTION } from './constants';
+import { agendaFactory, databaseFactory } from './factories';
 import {
   AgendaConfigFactory,
   AgendaModuleAsyncConfig,
@@ -10,24 +10,34 @@ import {
 } from './interfaces';
 import { AgendaExplorer, AgendaMetadataAccessor } from './providers';
 import { AgendaOrchestrator } from './providers/agenda.orchestrator';
-import { getQueueToken } from './utils';
+import { getQueueConfigToken, getQueueToken } from './utils';
 
 @Module({
   imports: [DiscoveryModule],
-  providers: [AgendaMetadataAccessor, AgendaExplorer, AgendaOrchestrator],
+  providers: [],
 })
 export class AgendaModule {
   static forRoot(config: AgendaModuleConfig): DynamicModule {
-    const configProvider: Provider = {
-      provide: AGENDA_MODULE_CONFIG,
-      useValue: config,
-    };
+    const configProviders: Provider[] = [
+      {
+        provide: AGENDA_MODULE_CONFIG,
+        useValue: config,
+      },
+      {
+        provide: DATABASE_CONNECTION,
+        useFactory: databaseFactory,
+        inject: [AGENDA_MODULE_CONFIG],
+      },
+      AgendaMetadataAccessor,
+      AgendaExplorer,
+      AgendaOrchestrator,
+    ];
 
     return {
       global: true,
       module: AgendaModule,
-      providers: [configProvider],
-      exports: [configProvider],
+      providers: configProviders,
+      exports: configProviders,
     };
   }
 
@@ -40,7 +50,13 @@ export class AgendaModule {
       global: true,
       module: AgendaModule,
       imports: config.imports || [],
-      providers: [...providers, ...(config.extraProviders || [])],
+      providers: [
+        ...providers,
+        AgendaMetadataAccessor,
+        AgendaExplorer,
+        AgendaOrchestrator,
+        ...(config.extraProviders || []),
+      ],
       exports: providers,
     };
   }
@@ -48,38 +64,24 @@ export class AgendaModule {
   static forFeature(config: AgendaQueueConfig): DynamicModule {
     const queueToken = getQueueToken(config.queue);
 
+    const queueConfigToken = getQueueConfigToken(config.queue);
+
     const providers = [
       {
+        provide: queueConfigToken,
+        useValue: config,
+      },
+      {
         provide: queueToken,
-        useFactory: (rootConfig: AgendaModuleConfig) =>
-          new Agenda({
-            ...rootConfig,
-            ...config,
-            ...{
-              db: {
-                address: config.db?.address || rootConfig.db?.address || '',
-                collection: queueToken,
-              },
-            },
-          }),
-        inject: [AGENDA_MODULE_CONFIG],
+        useFactory: agendaFactory,
+        inject: [queueConfigToken, AGENDA_MODULE_CONFIG],
       },
     ];
 
     return {
       module: AgendaModule,
-      imports: [AgendaModule.registerCore()],
       providers,
       exports: providers,
-    };
-  }
-
-  private static registerCore() {
-    return {
-      global: true,
-      module: AgendaModule,
-      imports: [DiscoveryModule],
-      providers: [AgendaMetadataAccessor, AgendaExplorer, AgendaOrchestrator],
     };
   }
 
@@ -87,7 +89,14 @@ export class AgendaModule {
     config: AgendaModuleAsyncConfig<T>,
   ): Provider[] {
     if (config.useExisting || config.useFactory) {
-      return [this.createAsyncOptionsProvider(config)];
+      return [
+        this.createAsyncOptionsProvider(config),
+        {
+          provide: DATABASE_CONNECTION,
+          useFactory: databaseFactory,
+          inject: [AGENDA_MODULE_CONFIG],
+        },
+      ];
     }
 
     const useClass = config.useClass as Type<AgendaConfigFactory<T>>;
@@ -97,6 +106,11 @@ export class AgendaModule {
       {
         provide: useClass,
         useClass,
+      },
+      {
+        provide: DATABASE_CONNECTION,
+        useFactory: databaseFactory,
+        inject: [AGENDA_MODULE_CONFIG],
       },
     ];
   }

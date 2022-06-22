@@ -4,6 +4,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
 import { JobsHandler } from './jobs.handler';
 
+jest.setTimeout(10000);
+
 let mongo: MongoMemoryServer;
 
 const databaseProvider = {
@@ -45,12 +47,13 @@ describe('Agenda Module', () => {
 
       jobsHandler = testingModule.get(JobsHandler);
 
+      await testingModule.init();
+
       agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
 
       await agenda._ready;
 
-      await testingModule.init();
-
+      // Give the jobs a chance to run
       await wait(1000);
     });
 
@@ -72,6 +75,10 @@ describe('Agenda Module', () => {
 
     it('should run handle jobs scheduled to run immediately', () => {
       expect(jobsHandler.handled).toContain('runNow');
+    });
+
+    it('should notify when the queue is ready', () => {
+      expect(jobsHandler.handled).toContain('onQueueReady');
     });
 
     it('should notify when any job has started', () => {

@@ -3,11 +3,12 @@ import {
   Logger,
   OnApplicationBootstrap,
   OnApplicationShutdown,
-  OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Agenda, { AgendaConfig, Processor } from 'agenda';
+import { Db } from 'mongodb';
 import { NO_QUEUE_FOUND } from '../agenda.messages';
+import { DATABASE_CONNECTION } from '../constants';
 import {
   AgendaModuleJobOptions,
   NonRepeatableJobOptions,
@@ -81,7 +82,7 @@ export class AgendaOrchestrator
     }
   }
 
-  private getQueue(queueToken: string, queueName: string): Agenda {
+  private getQueue(queueName: string, queueToken: string): Agenda {
     try {
       return this.moduleRef.get<Agenda>(queueToken, { strict: false });
     } catch (error) {
@@ -90,13 +91,31 @@ export class AgendaOrchestrator
     }
   }
 
+  private getQueueConfig(queueConfigToken: string): AgendaConfig {
+    return this.moduleRef.get<AgendaConfig>(queueConfigToken, {
+      strict: false,
+    });
+  }
+
+  private getDatabaseConnection() {
+    const connection = this.moduleRef.get<Db>(DATABASE_CONNECTION, {
+      strict: false,
+    });
+
+    return connection;
+  }
+
   async onApplicationBootstrap() {
+    const database = this.getDatabaseConnection();
+
     for await (const queue_ of this.queues) {
-      const [, registry] = queue_;
+      const [queueToken, registry] = queue_;
 
       const { queue } = registry;
 
       this.attachEventListeners(queue, registry);
+
+      queue.mongo(database, queueToken);
 
       await queue.start();
 
@@ -114,14 +133,15 @@ export class AgendaOrchestrator
     }
   }
 
-  addQueue(queueName: string, queueToken: string, config: AgendaConfig) {
-    const queue = this.getQueue(queueToken, queueName);
+  addQueue(queueName: string, queueToken: string, queueConfigToken: string) {
+    const queue = this.getQueue(queueName, queueToken);
+    const config = this.getQueueConfig(queueConfigToken);
 
     this.queues.set(queueToken, {
+      queue,
       config,
       processors: new Map(),
       listeners: new Map(),
-      queue,
     });
   }
 

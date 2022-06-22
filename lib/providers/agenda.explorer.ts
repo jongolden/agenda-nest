@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Processor } from 'agenda';
-import { getQueueToken } from '../utils';
+import { getQueueConfigToken, getQueueToken } from '../utils';
 import { AgendaMetadataAccessor } from './agenda-metadata.accessor';
 import { AgendaOrchestrator } from './agenda.orchestrator';
 
@@ -40,7 +40,9 @@ export class AgendaExplorer implements OnModuleInit {
 
         const queueToken = getQueueToken(queueName);
 
-        this.orchestrator.addQueue(queueName, queueToken, {});
+        const queueConfigToken = getQueueConfigToken(queueName);
+
+        this.orchestrator.addQueue(queueName, queueToken, queueConfigToken);
 
         this.metadataScanner.scanFromPrototype(
           instance,

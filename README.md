@@ -1,7 +1,7 @@
 # Agenda Nest
 
-<a href="https://www.npmjs.com/~agenda-nest" target="_blank"><img src="https://img.shields.io/npm/v/agenda-nest.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~agenda-nest" target="_blank"><img src="https://img.shields.io/npm/l/agenda-nest.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/package/agenda-nest" target="_blank"><img src="https://img.shields.io/npm/v/agenda-nest.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/package/agenda-nest" target="_blank"><img src="https://img.shields.io/npm/l/agenda-nest.svg" alt="Package License" /></a>
 </p>
 
 A NestJS module for Agenda
