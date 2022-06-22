@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5-2](https://github.com/jongolden/agenda-nestjs/compare/v0.0.5-1...v0.0.5-2) (2022-06-22)
+
+
+### Features
+
+* internal manage db connection ([f09142f](https://github.com/jongolden/agenda-nestjs/commit/f09142f320bf2251ff262d5865d5f485bf8ca581))
+
 ### [0.0.5-1](https://github.com/jongolden/agenda-nestjs/compare/v0.0.5-0...v0.0.5-1) (2022-06-21)
 
 ### [0.0.5-0](https://github.com/jongolden/agenda-nestjs/compare/v0.0.4...v0.0.5-0) (2022-06-21)
