@@ -6,8 +6,6 @@
 
 A NestJS module for Agenda
 
-> ⚠️ This package is not yet stable and is subject breaking changes until such time as v1.0.0 is released.
-
 ## Table of Contents
 - [Background](#background)
 - [Install](#install)
