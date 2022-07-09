@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/jongolden/agenda-nestjs/compare/v0.0.4...v1.0.0) (2022-07-09)
+
+
+### Features
+
+* enable multiple queues ([#3](https://github.com/jongolden/agenda-nestjs/issues/3)) ([ce2f869](https://github.com/jongolden/agenda-nestjs/commit/ce2f869d58a7afa13b34a9c9d5d11486a7a2d831))
+
 ### [0.0.5-2](https://github.com/jongolden/agenda-nestjs/compare/v0.0.5-1...v0.0.5-2) (2022-06-22)
 
 

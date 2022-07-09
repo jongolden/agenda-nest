@@ -1,6 +1,6 @@
 {
   "name": "agenda-nest",
-  "version": "0.0.5-2",
+  "version": "1.0.0",
   "description": "A NestJS module for Agenda",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
