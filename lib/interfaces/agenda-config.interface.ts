@@ -6,19 +6,19 @@ import {
 } from '@nestjs/common';
 import { AgendaConfig } from 'agenda';
 
-export type AgendaModuleConfig = AgendaConfig & { global?: boolean };
+export type AgendaModuleConfig = AgendaConfig;
 
-export interface AgendaConfigFactory {
-  createAgendaConfig(): Promise<AgendaModuleConfig> | AgendaModuleConfig;
+export type AgendaQueueConfig = Omit<AgendaModuleConfig, 'mongo' | 'db'>;
+
+export interface AgendaConfigFactory<T> {
+  createAgendaConfig(): Promise<T> | T;
 }
 
-export interface AgendaModuleAsyncConfig
+export interface AgendaModuleAsyncConfig<T>
   extends Pick<ModuleMetadata, 'imports'> {
-  useExisting?: Type<AgendaConfigFactory>;
-  useClass?: Type<AgendaConfigFactory>;
-  useFactory?: (
-    ...args: any[]
-  ) => Promise<AgendaModuleConfig> | AgendaModuleConfig;
+  useExisting?: Type<AgendaConfigFactory<T>>;
+  useClass?: Type<AgendaConfigFactory<T>>;
+  useFactory?: (...args: any[]) => Promise<T> | T;
   inject?: FactoryProvider['inject'];
   extraProviders?: Provider[];
 }

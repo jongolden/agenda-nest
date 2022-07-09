@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import Agenda from 'agenda';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
-import { AgendaService } from '../lib/providers';
 import { JobsHandler } from './jobs.handler';
+
+jest.setTimeout(10000);
 
 let mongo: MongoMemoryServer;
 
@@ -22,42 +24,39 @@ describe('Agenda Module', () => {
   describe('handles decorators', () => {
     let testingModule: TestingModule;
 
-    let agendaService: AgendaService;
-
     let jobsHandler: JobsHandler;
+
+    let agenda: Agenda;
 
     beforeAll(async () => {
       testingModule = await Test.createTestingModule({
         imports: [
-          AgendaModule.registerAsync({
+          AgendaModule.forRootAsync({
             useFactory: (mongoUri: string) => {
-              return {
-                db: {
-                  address: mongoUri,
-                  collection: 'agenda-queue',
-                },
-              };
+              return { db: { address: mongoUri } };
             },
             inject: ['MONGO_URI'],
             extraProviders: [databaseProvider],
           }),
+          AgendaModule.registerQueue('jobs'),
         ],
         providers: [JobsHandler],
       }).compile();
-
-      agendaService = testingModule.get(AgendaService);
 
       jobsHandler = testingModule.get(JobsHandler);
 
       await testingModule.init();
 
-      await agendaService._ready;
+      agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
 
+      await agenda._ready;
+
+      // Give the jobs a chance to run
       await wait(1000);
     });
 
     afterAll(async () => {
-      await agendaService.stop();
+      await agenda.stop();
 
       if (mongo) {
         await mongo.stop({
@@ -66,12 +65,6 @@ describe('Agenda Module', () => {
       }
 
       await testingModule.close();
-    });
-
-    it('should manually run a defined job', async () => {
-      await agendaService.now('defined job', {});
-      await wait(100); // agenda resolves before the job is complete
-      expect(jobsHandler.handled).toContain('definedJob');
     });
 
     it('should schedule a job to run at the given interval', () => {

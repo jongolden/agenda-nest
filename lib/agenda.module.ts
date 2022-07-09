@@ -1,76 +1,125 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import Agenda from 'agenda';
-import { AGENDA_MODULE_CONFIG } from './constants';
+import { AGENDA_MODULE_CONFIG, DATABASE_CONNECTION } from './constants';
+import { agendaFactory, databaseFactory } from './factories';
 import {
   AgendaConfigFactory,
   AgendaModuleAsyncConfig,
   AgendaModuleConfig,
+  AgendaQueueConfig,
 } from './interfaces';
-import {
-  AgendaExplorer,
-  AgendaMetadataAccessor,
-  AgendaService,
-} from './providers';
+import { AgendaExplorer, AgendaMetadataAccessor } from './providers';
 import { AgendaOrchestrator } from './providers/agenda.orchestrator';
+import { getQueueConfigToken, getQueueToken } from './utils';
 
 @Module({
   imports: [DiscoveryModule],
-  providers: [
-    AgendaMetadataAccessor,
-    AgendaExplorer,
-    AgendaOrchestrator,
-    {
-      provide: AgendaService,
-      useFactory: (config: AgendaModuleConfig) => new Agenda(config),
-      inject: [AGENDA_MODULE_CONFIG],
-    },
-  ],
+  providers: [],
 })
 export class AgendaModule {
-  static register(config: AgendaModuleConfig): DynamicModule {
+  static forRoot(config: AgendaModuleConfig): DynamicModule {
+    const configProviders: Provider[] = [
+      {
+        provide: AGENDA_MODULE_CONFIG,
+        useValue: config,
+      },
+      {
+        provide: DATABASE_CONNECTION,
+        useFactory: databaseFactory,
+        inject: [AGENDA_MODULE_CONFIG],
+      },
+      AgendaMetadataAccessor,
+      AgendaExplorer,
+      AgendaOrchestrator,
+    ];
+
     return {
+      global: true,
       module: AgendaModule,
-      providers: [
-        {
-          provide: AGENDA_MODULE_CONFIG,
-          useValue: config,
-        },
-      ],
+      providers: configProviders,
+      exports: configProviders,
     };
   }
 
-  static registerAsync(config: AgendaModuleAsyncConfig): DynamicModule {
+  static forRootAsync(
+    config: AgendaModuleAsyncConfig<AgendaModuleConfig>,
+  ): DynamicModule {
+    const providers = this.createAsyncProviders<AgendaModuleConfig>(config);
+
     return {
+      global: true,
       module: AgendaModule,
       imports: config.imports || [],
       providers: [
-        ...this.createAsyncProviders(config),
+        ...providers,
+        AgendaMetadataAccessor,
+        AgendaExplorer,
+        AgendaOrchestrator,
         ...(config.extraProviders || []),
       ],
+      exports: providers,
     };
   }
 
-  private static createAsyncProviders(
-    config: AgendaModuleAsyncConfig,
+  static registerQueue(
+    name: string,
+    config: AgendaQueueConfig = {},
+  ): DynamicModule {
+    const queueToken = getQueueToken(name);
+
+    const queueConfigToken = getQueueConfigToken(name);
+
+    const providers: Provider[] = [
+      {
+        provide: queueConfigToken,
+        useValue: config,
+      },
+      {
+        provide: queueToken,
+        useFactory: agendaFactory,
+        inject: [queueConfigToken, AGENDA_MODULE_CONFIG],
+      },
+    ];
+
+    return {
+      module: AgendaModule,
+      providers,
+      exports: providers,
+    };
+  }
+
+  private static createAsyncProviders<T>(
+    config: AgendaModuleAsyncConfig<T>,
   ): Provider[] {
     if (config.useExisting || config.useFactory) {
-      return [this.createAsyncOptionsProvider(config)];
+      return [
+        this.createAsyncOptionsProvider(config),
+        {
+          provide: DATABASE_CONNECTION,
+          useFactory: databaseFactory,
+          inject: [AGENDA_MODULE_CONFIG],
+        },
+      ];
     }
 
-    const useClass = config.useClass as Type<AgendaConfigFactory>;
+    const useClass = config.useClass as Type<AgendaConfigFactory<T>>;
 
     return [
-      this.createAsyncOptionsProvider(config),
+      this.createAsyncOptionsProvider<T>(config),
       {
         provide: useClass,
         useClass,
       },
+      {
+        provide: DATABASE_CONNECTION,
+        useFactory: databaseFactory,
+        inject: [AGENDA_MODULE_CONFIG],
+      },
     ];
   }
 
-  private static createAsyncOptionsProvider(
-    config: AgendaModuleAsyncConfig,
+  private static createAsyncOptionsProvider<T>(
+    config: AgendaModuleAsyncConfig<T>,
   ): Provider {
     if (config.useFactory) {
       return {
@@ -81,12 +130,12 @@ export class AgendaModule {
     }
 
     const inject = [
-      (config.useClass || config.useExisting) as Type<AgendaConfigFactory>,
+      (config.useClass || config.useExisting) as Type<AgendaConfigFactory<T>>,
     ];
 
     return {
       provide: AGENDA_MODULE_CONFIG,
-      useFactory: async (optionsFactory: AgendaConfigFactory) =>
+      useFactory: async (optionsFactory: AgendaConfigFactory<T>) =>
         optionsFactory.createAgendaConfig(),
       inject,
     };

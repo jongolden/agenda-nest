@@ -1,5 +1,3 @@
-import { Injectable } from '@nestjs/common';
-import { Job } from 'agenda';
 import {
   Every,
   Schedule,
@@ -10,9 +8,10 @@ import {
   OnJobSuccess,
   OnJobFail,
   Define,
+  Queue,
 } from '../lib';
 
-@Injectable()
+@Queue('jobs')
 export class JobsHandler {
   handled: string[] = [];
 

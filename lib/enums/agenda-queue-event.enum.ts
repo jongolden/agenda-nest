@@ -1,8 +1,4 @@
-export enum HandlerType {
-  DEFINE = 'define',
-  EVERY = 'every',
-  SCHEDULE = 'schedule',
-  NOW = 'now',
+export enum AgendaQueueEvent {
   READY = 'ready',
   ERROR = 'error',
   START = 'start',
