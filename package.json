@@ -19,6 +19,10 @@
   "author": "Jonathan Golden <jongolden17@gmail.com>",
   "license": "MIT",
   "url": "https://github.com/jongolden/agenda-nest#readme",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/jongolden/agenda-nest"
+  },
   "perDependencies": {
     "@nestjs/common": "8.x",
     "@nestjs/core": "8.x",
