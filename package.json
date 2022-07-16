@@ -1,6 +1,6 @@
 {
   "name": "agenda-nest",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A NestJS module for Agenda",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
   "url": "https://github.com/jongolden/agenda-nest#readme",
   "repository": {
     "type": "git",
-    "url" : "https://github.com/jongolden/agenda-nest"
+    "url": "https://github.com/jongolden/agenda-nest"
   },
   "peerDependencies": {
     "@nestjs/common": "8.x",

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/jongolden/agenda-nest/compare/v1.0.0...v1.0.1) (2022-07-16)
+
+
+### Bug Fixes
+
+* peerDependencies field ([059c52f](https://github.com/jongolden/agenda-nest/commit/059c52f00f1fe26d03d0ef1f08f2d41b7d863f7d))
+
 ## [1.0.0](https://github.com/jongolden/agenda-nestjs/compare/v0.0.4...v1.0.0) (2022-07-09)
 
 
