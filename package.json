@@ -23,7 +23,7 @@
     "type": "git",
     "url" : "https://github.com/jongolden/agenda-nest"
   },
-  "perDependencies": {
+  "peerDependencies": {
     "@nestjs/common": "8.x",
     "@nestjs/core": "8.x",
     "agenda": "4.x"
