@@ -1,20 +1,19 @@
 import {
+  BeforeApplicationShutdown,
   Injectable,
   Logger,
   OnApplicationBootstrap,
-  OnApplicationShutdown,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import Agenda, { AgendaConfig, Processor } from 'agenda';
-import { Db } from 'mongodb';
 import { NO_QUEUE_FOUND } from '../agenda.messages';
-import { DATABASE_CONNECTION } from '../constants';
 import {
   AgendaModuleJobOptions,
   NonRepeatableJobOptions,
   RepeatableJobOptions,
 } from '../decorators';
 import { JobProcessorType } from '../enums';
+import { DatabaseService } from './database.service';
 
 type JobProcessorConfig = {
   handler: Processor;
@@ -33,13 +32,16 @@ type QueueRegistry = {
 
 @Injectable()
 export class AgendaOrchestrator
-  implements OnApplicationBootstrap, OnApplicationShutdown
+  implements OnApplicationBootstrap, BeforeApplicationShutdown
 {
   private readonly logger = new Logger('Agenda');
 
   private readonly queues: Map<string, QueueRegistry> = new Map();
 
-  constructor(private readonly moduleRef: ModuleRef) {}
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    private readonly database: DatabaseService,
+  ) {}
 
   private attachEventListeners(agenda: Agenda, registry: QueueRegistry) {
     registry.listeners.forEach((listener: EventListener, eventName: string) => {
@@ -97,16 +99,8 @@ export class AgendaOrchestrator
     });
   }
 
-  private getDatabaseConnection() {
-    const connection = this.moduleRef.get<Db>(DATABASE_CONNECTION, {
-      strict: false,
-    });
-
-    return connection;
-  }
-
   async onApplicationBootstrap() {
-    const database = this.getDatabaseConnection();
+    const database = await this.database.getConnection();
 
     for await (const queue_ of this.queues) {
       const [queueToken, registry] = queue_;
@@ -125,12 +119,14 @@ export class AgendaOrchestrator
     }
   }
 
-  async onApplicationShutdown() {
+  async beforeApplicationShutdown() {
     for await (const queue of this.queues) {
       const [, config] = queue;
 
       await config.queue.stop();
     }
+
+    await this.database.disconnect();
   }
 
   addQueue(queueName: string, queueToken: string, queueConfigToken: string) {

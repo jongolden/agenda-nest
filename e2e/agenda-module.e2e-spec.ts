@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import Agenda from 'agenda';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
+import { DatabaseService } from '../lib/providers/database.service';
 import { JobsHandler } from './jobs.handler';
 
 jest.setTimeout(10000);
@@ -28,6 +29,8 @@ describe('Agenda Module', () => {
 
     let agenda: Agenda;
 
+    let database: DatabaseService;
+
     beforeAll(async () => {
       testingModule = await Test.createTestingModule({
         imports: [
@@ -49,6 +52,10 @@ describe('Agenda Module', () => {
 
       agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
 
+      database = testingModule.get<DatabaseService>(DatabaseService, { strict: false });
+
+      jest.spyOn(database, 'disconnect');
+
       await agenda._ready;
 
       // Give the jobs a chance to run
@@ -58,13 +65,9 @@ describe('Agenda Module', () => {
     afterAll(async () => {
       await agenda.stop();
 
-      if (mongo) {
-        await mongo.stop({
-          doCleanup: true,
-        });
-      }
-
       await testingModule.close();
+
+      expect(database.disconnect).toHaveBeenCalled();
     });
 
     it('should schedule a job to run at the given interval', () => {
