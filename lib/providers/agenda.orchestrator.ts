@@ -5,7 +5,7 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import Agenda, { AgendaConfig, Processor } from 'agenda';
+import Agenda, { AgendaConfig, Job, Processor } from 'agenda';
 import { Db } from 'mongodb';
 import { NO_QUEUE_FOUND } from '../agenda.messages';
 import { DATABASE_CONNECTION } from '../constants';
@@ -20,6 +20,7 @@ type JobProcessorConfig = {
   handler: Processor;
   type: JobProcessorType;
   options: RepeatableJobOptions | NonRepeatableJobOptions;
+  useCallback: boolean;
 };
 
 export type EventListener = (...args: any[]) => void;
@@ -50,9 +51,15 @@ export class AgendaOrchestrator
   private defineJobProcessors(agenda: Agenda, registry: QueueRegistry) {
     registry.processors.forEach(
       (jobConfig: JobProcessorConfig, jobName: string) => {
-        const { options, handler } = jobConfig;
+        const { options, handler, useCallback } = jobConfig;
 
-        agenda.define(jobName, options, handler);
+        if (useCallback) {
+          agenda.define(jobName, options, (job: Job, done: () => void) =>
+            handler(job, done),
+          );
+        } else {
+          agenda.define(jobName, options, handler);
+        }
       },
     );
   }
@@ -150,11 +157,13 @@ export class AgendaOrchestrator
     processor: Processor & Record<'_name', string>,
     options: AgendaModuleJobOptions,
     type: JobProcessorType,
+    useCallback: boolean,
   ) {
     const jobName = options.name || processor._name;
 
     this.queues.get(queueToken)?.processors.set(jobName, {
       handler: processor,
+      useCallback,
       type,
       options,
     });
