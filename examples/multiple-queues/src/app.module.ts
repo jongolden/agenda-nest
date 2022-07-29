@@ -7,8 +7,12 @@ import { ReportsModule } from './reports/reports.module';
 const databaseProvider = {
   provide: 'DATABASE_CONNECTION',
   useFactory: async () => {
+    console.log('here');
     const client = new MongoClient('mongodb://localhost:27017');
+    console.log('connecting');
     await client.connect();
+
+    console.log('connected');
 
     return client.db();
   },

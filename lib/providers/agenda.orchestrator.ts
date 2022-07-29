@@ -1,6 +1,5 @@
 import {
   BeforeApplicationShutdown,
-  Inject,
   Injectable,
   Logger,
   OnApplicationBootstrap,
@@ -8,7 +7,6 @@ import {
 import { ModuleRef } from '@nestjs/core';
 import Agenda, { AgendaConfig, Job, Processor } from 'agenda';
 import { NO_QUEUE_FOUND } from '../agenda.messages';
-import { AGENDA_MODULE_CONFIG } from '../constants';
 import {
   AgendaModuleJobOptions,
   NonRepeatableJobOptions,
@@ -45,7 +43,6 @@ export class AgendaOrchestrator
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly database: DatabaseService,
-    @Inject(AGENDA_MODULE_CONFIG) private readonly config: AgendaQueueConfig,
   ) {}
 
   private attachEventListeners(agenda: Agenda, registry: QueueRegistry) {
@@ -111,7 +108,7 @@ export class AgendaOrchestrator
   }
 
   async onApplicationBootstrap() {
-    const database = await this.database.getConnection();
+    await this.database.connect();
 
     for await (const queue_ of this.queues) {
       const [queueToken, registry] = queue_;
@@ -120,7 +117,7 @@ export class AgendaOrchestrator
 
       this.attachEventListeners(queue, registry);
 
-      queue.mongo(database, queueToken);
+      queue.mongo(this.database.getConnection(), queueToken);
 
       if (config.autoStart) {
         await queue.start();
