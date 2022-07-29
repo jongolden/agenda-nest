@@ -1,7 +1,7 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import { AGENDA_MODULE_CONFIG, DATABASE_CONNECTION } from './constants';
-import { agendaFactory, databaseFactory } from './factories';
+import { AGENDA_MODULE_CONFIG } from './constants';
+import { agendaFactory } from './factories';
 import {
   AgendaConfigFactory,
   AgendaModuleAsyncConfig,
@@ -10,6 +10,7 @@ import {
 } from './interfaces';
 import { AgendaExplorer, AgendaMetadataAccessor } from './providers';
 import { AgendaOrchestrator } from './providers/agenda.orchestrator';
+import { DatabaseService } from './providers/database.service';
 import { getQueueConfigToken, getQueueToken } from './utils';
 
 @Module({
@@ -23,11 +24,7 @@ export class AgendaModule {
         provide: AGENDA_MODULE_CONFIG,
         useValue: config,
       },
-      {
-        provide: DATABASE_CONNECTION,
-        useFactory: databaseFactory,
-        inject: [AGENDA_MODULE_CONFIG],
-      },
+      DatabaseService,
       AgendaMetadataAccessor,
       AgendaExplorer,
       AgendaOrchestrator,
@@ -52,6 +49,7 @@ export class AgendaModule {
       imports: config.imports || [],
       providers: [
         ...providers,
+        DatabaseService,
         AgendaMetadataAccessor,
         AgendaExplorer,
         AgendaOrchestrator,
@@ -92,14 +90,7 @@ export class AgendaModule {
     config: AgendaModuleAsyncConfig<T>,
   ): Provider[] {
     if (config.useExisting || config.useFactory) {
-      return [
-        this.createAsyncOptionsProvider(config),
-        {
-          provide: DATABASE_CONNECTION,
-          useFactory: databaseFactory,
-          inject: [AGENDA_MODULE_CONFIG],
-        },
-      ];
+      return [this.createAsyncOptionsProvider(config)];
     }
 
     const useClass = config.useClass as Type<AgendaConfigFactory<T>>;
@@ -109,11 +100,6 @@ export class AgendaModule {
       {
         provide: useClass,
         useClass,
-      },
-      {
-        provide: DATABASE_CONNECTION,
-        useFactory: databaseFactory,
-        inject: [AGENDA_MODULE_CONFIG],
       },
     ];
   }
