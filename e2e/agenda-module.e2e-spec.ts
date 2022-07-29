@@ -48,13 +48,13 @@ describe('Agenda Module', () => {
 
       jobsHandler = testingModule.get(JobsHandler);
 
-      await testingModule.init();
-
       agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
 
       database = testingModule.get<DatabaseService>(DatabaseService, { strict: false });
 
       jest.spyOn(database, 'disconnect');
+
+      await testingModule.init();
 
       await agenda._ready;
 
@@ -100,6 +100,64 @@ describe('Agenda Module', () => {
 
     it('should notify when a job has failed', () => {
       expect(jobsHandler.handled).toContain('onJobFail');
+    });
+  });
+
+  describe('configuration', () => {
+    it('should auto start the queue', async () => {
+      const testingModule = await Test.createTestingModule({
+        imports: [
+          AgendaModule.forRootAsync({
+            useFactory: (mongoUri: string) => {
+              return { db: { address: mongoUri } };
+            },
+            inject: ['MONGO_URI'],
+            extraProviders: [databaseProvider],
+          }),
+          AgendaModule.registerQueue('jobs'),
+        ],
+        providers: [JobsHandler],
+      }).compile();
+
+      const agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
+
+      jest.spyOn(agenda, 'start');
+
+      await testingModule.init();
+
+      await wait(1000);
+
+      expect(agenda.start).toHaveBeenCalled();
+
+      await testingModule.close();
+    });
+
+    it('should not auto start the queue', async () => {
+      const testingModule = await Test.createTestingModule({
+        imports: [
+          AgendaModule.forRootAsync({
+            useFactory: (mongoUri: string) => {
+              return { db: { address: mongoUri } };
+            },
+            inject: ['MONGO_URI'],
+            extraProviders: [databaseProvider],
+          }),
+          AgendaModule.registerQueue('jobs', {
+            autoStart: false,
+          }),
+        ],
+        providers: [JobsHandler],
+      }).compile();
+
+      const agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
+
+      jest.spyOn(agenda, 'start');
+
+      await testingModule.init();
+
+      expect(agenda.start).not.toHaveBeenCalled();
+
+      await testingModule.close();
     });
   });
 });

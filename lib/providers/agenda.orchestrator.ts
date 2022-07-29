@@ -1,5 +1,6 @@
 import {
   BeforeApplicationShutdown,
+  Inject,
   Injectable,
   Logger,
   OnApplicationBootstrap,
@@ -7,12 +8,14 @@ import {
 import { ModuleRef } from '@nestjs/core';
 import Agenda, { AgendaConfig, Job, Processor } from 'agenda';
 import { NO_QUEUE_FOUND } from '../agenda.messages';
+import { AGENDA_MODULE_CONFIG } from '../constants';
 import {
   AgendaModuleJobOptions,
   NonRepeatableJobOptions,
   RepeatableJobOptions,
 } from '../decorators';
 import { JobProcessorType } from '../enums';
+import { AgendaQueueConfig } from '../interfaces';
 import { DatabaseService } from './database.service';
 
 type JobProcessorConfig = {
@@ -25,7 +28,7 @@ type JobProcessorConfig = {
 export type EventListener = (...args: any[]) => void;
 
 type QueueRegistry = {
-  config: AgendaConfig;
+  config: AgendaQueueConfig;
   processors: Map<string, JobProcessorConfig>;
   listeners: Map<string, EventListener>;
   queue: Agenda;
@@ -42,6 +45,7 @@ export class AgendaOrchestrator
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly database: DatabaseService,
+    @Inject(AGENDA_MODULE_CONFIG) private readonly config: AgendaQueueConfig,
   ) {}
 
   private attachEventListeners(agenda: Agenda, registry: QueueRegistry) {
@@ -112,13 +116,15 @@ export class AgendaOrchestrator
     for await (const queue_ of this.queues) {
       const [queueToken, registry] = queue_;
 
-      const { queue } = registry;
+      const { config, queue } = registry;
 
       this.attachEventListeners(queue, registry);
 
       queue.mongo(database, queueToken);
 
-      await queue.start();
+      if (config.autoStart) {
+        await queue.start();
+      }
 
       this.defineJobProcessors(queue, registry);
 

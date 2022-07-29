@@ -62,6 +62,7 @@ import { AgendaModule } from 'agenda-nest';
   imports: [
     AgendaModule.registerQueue('notifications', {
       processEvery: '5 minutes',
+      autoStart: false, // default: true
     }),
   ],
 })
