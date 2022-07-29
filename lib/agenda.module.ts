@@ -67,10 +67,14 @@ export class AgendaModule {
 
     const queueConfigToken = getQueueConfigToken(name);
 
+    const configDefaults = {
+      autoStart: true,
+    };
+
     const providers: Provider[] = [
       {
         provide: queueConfigToken,
-        useValue: config,
+        useValue: { ...configDefaults, ...config },
       },
       {
         provide: queueToken,

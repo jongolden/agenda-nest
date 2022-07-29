@@ -24,7 +24,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
-    "agenda-nest": "file:../../agenda-nest-0.0.5-1.tgz",
+    "agenda-nest": "file:../../agenda-nest-1.0.1.tgz",
     "mongodb": "^4.7.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

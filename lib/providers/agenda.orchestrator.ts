@@ -13,6 +13,7 @@ import {
   RepeatableJobOptions,
 } from '../decorators';
 import { JobProcessorType } from '../enums';
+import { AgendaQueueConfig } from '../interfaces';
 import { DatabaseService } from './database.service';
 
 type JobProcessorConfig = {
@@ -25,7 +26,7 @@ type JobProcessorConfig = {
 export type EventListener = (...args: any[]) => void;
 
 type QueueRegistry = {
-  config: AgendaConfig;
+  config: AgendaQueueConfig;
   processors: Map<string, JobProcessorConfig>;
   listeners: Map<string, EventListener>;
   queue: Agenda;
@@ -107,18 +108,20 @@ export class AgendaOrchestrator
   }
 
   async onApplicationBootstrap() {
-    const database = await this.database.getConnection();
+    await this.database.connect();
 
     for await (const queue_ of this.queues) {
       const [queueToken, registry] = queue_;
 
-      const { queue } = registry;
+      const { config, queue } = registry;
 
       this.attachEventListeners(queue, registry);
 
-      queue.mongo(database, queueToken);
+      queue.mongo(this.database.getConnection(), queueToken);
 
-      await queue.start();
+      if (config.autoStart) {
+        await queue.start();
+      }
 
       this.defineJobProcessors(queue, registry);
 

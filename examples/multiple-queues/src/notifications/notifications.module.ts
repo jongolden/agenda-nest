@@ -1,11 +1,23 @@
-import { Module } from '@nestjs/common';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
+import Agenda from 'agenda';
 import { AgendaModule } from 'agenda-nest';
 import { NotificationsQueue } from './notifications.queue';
 
 @Module({
   imports: [
-    AgendaModule.registerQueue('notifications'),
+    AgendaModule.registerQueue('notifications', {
+      autoStart: false,
+    }),
   ],
   providers: [NotificationsQueue],
 })
-export class NotificationsModule {}
+export class NotificationsModule implements OnApplicationBootstrap {
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  async onApplicationBootstrap() {
+    const queue = this.moduleRef.get<Agenda>('notifications-queue', { strict: false });
+    await queue.start();
+  }
+
+}
