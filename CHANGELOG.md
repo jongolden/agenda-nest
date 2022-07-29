@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0-0](https://github.com/jongolden/agenda-nest/compare/v1.0.1...v1.1.0-0) (2022-07-29)
+
+
+### Features
+
+* support disabling auto start of queue ([#11](https://github.com/jongolden/agenda-nest/issues/11)) ([db3090e](https://github.com/jongolden/agenda-nest/commit/db3090ef6983cbe5cbdd30efd03de6b60817c46a))
+
+
+### Bug Fixes
+
+* `done` not passed to processors ([#10](https://github.com/jongolden/agenda-nest/issues/10)) ([4aaa67c](https://github.com/jongolden/agenda-nest/commit/4aaa67cd3fd5d01141caaab9d3e80d483069a462)), closes [#8](https://github.com/jongolden/agenda-nest/issues/8)
+* disconnect from database on shutdown ([#5](https://github.com/jongolden/agenda-nest/issues/5)) ([86a106b](https://github.com/jongolden/agenda-nest/commit/86a106b37e1d599181d41c6b13413db2ad71e611)), closes [#4](https://github.com/jongolden/agenda-nest/issues/4)
+
 ### [1.0.1](https://github.com/jongolden/agenda-nest/compare/v1.0.0...v1.0.1) (2022-07-16)
 
 
