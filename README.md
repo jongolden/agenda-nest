@@ -4,7 +4,7 @@
 <a href="https://www.npmjs.com/package/agenda-nest" target="_blank"><img src="https://img.shields.io/npm/l/agenda-nest.svg" alt="Package License" /></a>
 </p>
 
-A NestJS module for Agenda
+A lightweight job scheduler for NestJS
 
 ## Table of Contents
 - [Background](#background)
@@ -18,7 +18,7 @@ A NestJS module for Agenda
 
 ## Background
 
-Agenda Nest provides a NestJS module wrapper for [Agenda](https://github.com/agenda/agenda), a light-weight job scheduling library.  Heavily inspired by Nest's own Bull implementation, [@nestjs/bull](https://github.com/nestjs/bull), Agenda Nest provides a fully-featured implementation, complete with decorators for defining your jobs, processors and queue event listeners.  You may optionally, make use of Agenda Nest's Express controller to interface with your queues through HTTP.
+Agenda Nest provides a NestJS module wrapper for [Agenda](https://github.com/agenda/agenda), a lightweight job scheduling library.  Heavily inspired by Nest's own Bull implementation, [@nestjs/bull](https://github.com/nestjs/bull), Agenda Nest provides a fully-featured implementation, complete with decorators for defining your jobs, processors and queue event listeners.  You may optionally, make use of Agenda Nest's Express controller to interface with your queues through HTTP.
 
 ### Dependencies
 
