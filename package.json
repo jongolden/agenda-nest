@@ -23,6 +23,16 @@
     "type": "git",
     "url": "https://github.com/jongolden/agenda-nest"
   },
+  "keywords": [
+    "job",
+    "jobs",
+    "cron",
+    "scheduler",
+    "runner",
+    "agenda",
+    "nest",
+    "nestjs"
+  ],
   "peerDependencies": {
     "@nestjs/common": "8.x",
     "@nestjs/core": "8.x",
