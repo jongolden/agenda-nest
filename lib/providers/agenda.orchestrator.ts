@@ -45,68 +45,6 @@ export class AgendaOrchestrator
     private readonly database: DatabaseService,
   ) {}
 
-  private attachEventListeners(agenda: Agenda, registry: QueueRegistry) {
-    registry.listeners.forEach((listener: EventListener, eventName: string) => {
-      agenda.on(eventName, listener);
-    });
-  }
-
-  private defineJobProcessors(agenda: Agenda, registry: QueueRegistry) {
-    registry.processors.forEach(
-      (jobConfig: JobProcessorConfig, jobName: string) => {
-        const { options, handler, useCallback } = jobConfig;
-
-        if (useCallback) {
-          agenda.define(jobName, options, (job: Job, done: () => void) =>
-            handler(job, done),
-          );
-        } else {
-          agenda.define(jobName, options, handler);
-        }
-      },
-    );
-  }
-
-  private async scheduleJobs(agenda: Agenda, registry: QueueRegistry) {
-    for await (const processor of registry.processors) {
-      const [jobName, jobConfig] = processor;
-
-      const { type, options } = jobConfig;
-
-      if (type === JobProcessorType.EVERY) {
-        await agenda.every(
-          (options as RepeatableJobOptions).interval,
-          jobName,
-          {},
-          options,
-        );
-      } else if (type === JobProcessorType.SCHEDULE) {
-        await agenda.schedule(
-          (options as NonRepeatableJobOptions).when,
-          jobName,
-          {},
-        );
-      } else if (type === JobProcessorType.NOW) {
-        await agenda.now(jobName, {});
-      }
-    }
-  }
-
-  private getQueue(queueName: string, queueToken: string): Agenda {
-    try {
-      return this.moduleRef.get<Agenda>(queueToken, { strict: false });
-    } catch (error) {
-      this.logger.error(NO_QUEUE_FOUND(queueName));
-      throw error;
-    }
-  }
-
-  private getQueueConfig(queueConfigToken: string): AgendaConfig {
-    return this.moduleRef.get<AgendaConfig>(queueConfigToken, {
-      strict: false,
-    });
-  }
-
   async onApplicationBootstrap() {
     await this.database.connect();
 
@@ -177,5 +115,67 @@ export class AgendaOrchestrator
     const key = jobName ? `${eventName}:${jobName}` : eventName;
 
     this.queues.get(queueToken)?.listeners.set(key, listener);
+  }
+
+  private attachEventListeners(agenda: Agenda, registry: QueueRegistry) {
+    registry.listeners.forEach((listener: EventListener, eventName: string) => {
+      agenda.on(eventName, listener);
+    });
+  }
+
+  private defineJobProcessors(agenda: Agenda, registry: QueueRegistry) {
+    registry.processors.forEach(
+      (jobConfig: JobProcessorConfig, jobName: string) => {
+        const { options, handler, useCallback } = jobConfig;
+
+        if (useCallback) {
+          agenda.define(jobName, options, (job: Job, done: () => void) =>
+            handler(job, done),
+          );
+        } else {
+          agenda.define(jobName, options, handler);
+        }
+      },
+    );
+  }
+
+  private async scheduleJobs(agenda: Agenda, registry: QueueRegistry) {
+    for await (const processor of registry.processors) {
+      const [jobName, jobConfig] = processor;
+
+      const { type, options } = jobConfig;
+
+      if (type === JobProcessorType.EVERY) {
+        await agenda.every(
+          (options as RepeatableJobOptions).interval,
+          jobName,
+          {},
+          options,
+        );
+      } else if (type === JobProcessorType.SCHEDULE) {
+        await agenda.schedule(
+          (options as NonRepeatableJobOptions).when,
+          jobName,
+          {},
+        );
+      } else if (type === JobProcessorType.NOW) {
+        await agenda.now(jobName, {});
+      }
+    }
+  }
+
+  private getQueue(queueName: string, queueToken: string): Agenda {
+    try {
+      return this.moduleRef.get<Agenda>(queueToken, { strict: false });
+    } catch (error) {
+      this.logger.error(NO_QUEUE_FOUND(queueName));
+      throw error;
+    }
+  }
+
+  private getQueueConfig(queueConfigToken: string): AgendaConfig {
+    return this.moduleRef.get<AgendaConfig>(queueConfigToken, {
+      strict: false,
+    });
   }
 }
