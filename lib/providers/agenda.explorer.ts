@@ -65,7 +65,7 @@ export class AgendaExplorer implements OnModuleInit {
                 jobProcessor,
                 jobOptions,
                 jobProcessorType,
-                methodRef.length,
+                methodRef.length === 2,
               );
             } else if (this.metadataAccessor.isEventListener(methodRef)) {
               const listener = this.wrapFunctionInTryCatchBlocks(
