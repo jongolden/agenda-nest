@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable, Inject, Type } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import {
   JOB_PROCESSOR_TYPE,
@@ -12,7 +12,7 @@ import { JobProcessorType } from '../enums';
 
 @Injectable()
 export class AgendaMetadataAccessor {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(@Inject(Reflector.name) private readonly reflector: Reflector) {}
 
   isQueue(target: Type<any> | Function): boolean {
     return !!this.reflector.get(AGENDA_MODULE_QUEUE, target);
