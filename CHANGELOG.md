@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/jongolden/agenda-nest/compare/v1.1.2...v1.2.0) (2022-10-28)
+
+
+### Features
+
+* support nest 9 ([dd9a35c](https://github.com/jongolden/agenda-nest/commit/dd9a35c3cb4e49fdd75ec1e7057bd7e419b0a7f8))
+
+
+### Bug Fixes
+
+* add Inject decorator to agenda metadata accessor constructor ([#14](https://github.com/jongolden/agenda-nest/issues/14)) ([4149cc9](https://github.com/jongolden/agenda-nest/commit/4149cc92fedf8eed3921af4233d94eab93a1d941))
+
 ## [1.2.0-0](https://github.com/jongolden/agenda-nest/compare/v1.1.2...v1.2.0-0) (2022-10-27)
 
 
