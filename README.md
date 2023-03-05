@@ -34,7 +34,10 @@ npm install agenda-nest
 
 As Agenda Nest is a wrapper for Agenda, it is configurable with same properties as the Agenda instance. Refer to [AgendaConfig](https://github.com/agenda/agenda/blob/master/lib/agenda/index.ts#L39) for the complete configuration type.
 
-```js
+### Synchronously
+
+```ts
+import { Module } from '@nestjs/common'
 import { AgendaModule } from 'agenda-nest';
 
 @Module({
@@ -51,11 +54,42 @@ import { AgendaModule } from 'agenda-nest';
 export class AppModule {}
 ```
 
+### Asynchronously
+
+```ts
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AgendaModule } from 'agenda-nest';
+import configuration from './configuration';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
+    AgendaModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        processEvery: config.get('queues.processInterval'),
+        db: {
+          address: config.get('database.connectionString'),
+        },
+      }),
+      inject: [ConfigService],
+    })
+  ],
+  providers: [Jobs],
+})
+export class AppModule {}
+```
+
 ## Configure queues
 
 Agenda Nest can manage multiple queues within your application.  To configure a new queue use `AgendaModule.registerQueue(queueName: string, config: AgendaConfig)`.  Queues will inherit the configuration provided to `Agenda.forRoot`, merging and overriding properties provided to the queue.
 
-```js
+### Synchronously
+
+```ts
+import { Module } from '@nestjs/common';
 import { AgendaModule } from 'agenda-nest';
 
 @Module({
@@ -63,6 +97,27 @@ import { AgendaModule } from 'agenda-nest';
     AgendaModule.registerQueue('notifications', {
       processEvery: '5 minutes',
       autoStart: false, // default: true
+    }),
+  ],
+})
+export class NotificationsModule {}
+```
+
+### Asynchronously
+
+```js
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AgendaModule } from 'agenda-nest';
+
+@Module({
+  imports: [
+    AgendaModule.registerQueueAsync('notifications', {
+      useFactory: (config: ConfigService) => ({
+        processEvery: config.get('queues.notifications.processInterval'),
+        autoStart: config.get('queues.notifications.autoStart'),
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
