@@ -1,4 +1,10 @@
-import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
+import {
+  DynamicModule,
+  InjectionToken,
+  Module,
+  Provider,
+  Type,
+} from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { AGENDA_MODULE_CONFIG } from './constants';
 import { agendaFactory } from './factories';
@@ -41,7 +47,10 @@ export class AgendaModule {
   static forRootAsync(
     config: AgendaModuleAsyncConfig<AgendaModuleConfig>,
   ): DynamicModule {
-    const providers = this.createAsyncProviders<AgendaModuleConfig>(config);
+    const providers = this.createAsyncProviders<AgendaModuleConfig>(
+      AGENDA_MODULE_CONFIG,
+      config,
+    );
 
     return {
       global: true,
@@ -63,21 +72,15 @@ export class AgendaModule {
     name: string,
     config: AgendaQueueConfig = {},
   ): DynamicModule {
-    const queueToken = getQueueToken(name);
-
     const queueConfigToken = getQueueConfigToken(name);
 
-    const configDefaults = {
-      autoStart: true,
-    };
-
-    const providers: Provider[] = [
+    const providers = [
       {
         provide: queueConfigToken,
-        useValue: { ...configDefaults, ...config },
+        useValue: { autoStart: true, ...config },
       },
       {
-        provide: queueToken,
+        provide: getQueueToken(name),
         useFactory: agendaFactory,
         inject: [queueConfigToken, AGENDA_MODULE_CONFIG],
       },
@@ -90,17 +93,41 @@ export class AgendaModule {
     };
   }
 
+  static registerQueueAsync(
+    name: string,
+    config: AgendaModuleAsyncConfig<AgendaQueueConfig>,
+  ): DynamicModule {
+    const queueConfigToken = getQueueConfigToken(name);
+
+    const providers = [
+      {
+        provide: getQueueToken(name),
+        useFactory: agendaFactory,
+        inject: [queueConfigToken, AGENDA_MODULE_CONFIG],
+      },
+      ...this.createAsyncProviders<AgendaQueueConfig>(queueConfigToken, config),
+    ];
+
+    return {
+      module: AgendaModule,
+      imports: config.imports || [],
+      providers: [...providers, ...(config.extraProviders || [])],
+      exports: providers,
+    };
+  }
+
   private static createAsyncProviders<T>(
+    token: InjectionToken,
     config: AgendaModuleAsyncConfig<T>,
   ): Provider[] {
     if (config.useExisting || config.useFactory) {
-      return [this.createAsyncOptionsProvider(config)];
+      return [this.createAsyncOptionsProvider(token, config)];
     }
 
     const useClass = config.useClass as Type<AgendaConfigFactory<T>>;
 
     return [
-      this.createAsyncOptionsProvider<T>(config),
+      this.createAsyncOptionsProvider<T>(token, config),
       {
         provide: useClass,
         useClass,
@@ -109,11 +136,12 @@ export class AgendaModule {
   }
 
   private static createAsyncOptionsProvider<T>(
+    token: InjectionToken,
     config: AgendaModuleAsyncConfig<T>,
   ): Provider {
     if (config.useFactory) {
       return {
-        provide: AGENDA_MODULE_CONFIG,
+        provide: token,
         useFactory: config.useFactory,
         inject: config.inject || [],
       };
@@ -124,7 +152,7 @@ export class AgendaModule {
     ];
 
     return {
-      provide: AGENDA_MODULE_CONFIG,
+      provide: token,
       useFactory: async (optionsFactory: AgendaConfigFactory<T>) =>
         optionsFactory.createAgendaConfig(),
       inject,

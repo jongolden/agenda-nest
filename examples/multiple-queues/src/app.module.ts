@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AgendaModule } from 'agenda-nest';
 import { MongoClient, Db } from 'mongodb';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -7,12 +8,9 @@ import { ReportsModule } from './reports/reports.module';
 const databaseProvider = {
   provide: 'DATABASE_CONNECTION',
   useFactory: async () => {
-    console.log('here');
     const client = new MongoClient('mongodb://localhost:27017');
-    console.log('connecting');
-    await client.connect();
 
-    console.log('connected');
+    await client.connect();
 
     return client.db();
   },
@@ -20,6 +18,7 @@ const databaseProvider = {
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     AgendaModule.forRootAsync({
       useFactory: (mongo: Db) => ({
         mongo,
