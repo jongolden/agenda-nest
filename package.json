@@ -36,7 +36,7 @@
   "peerDependencies": {
     "@nestjs/common": "8.x || 9.x",
     "@nestjs/core": "8.x || 9.x",
-    "agenda": "4.x"
+    "agenda": "5.x"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.2",
