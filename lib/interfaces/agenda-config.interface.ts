@@ -10,6 +10,7 @@ export type AgendaModuleConfig = AgendaConfig;
 
 export type AgendaQueueConfig = Omit<AgendaModuleConfig, 'mongo' | 'db'> & {
   autoStart?: boolean;
+  collection?: string;
 };
 
 export interface AgendaConfigFactory<T> {

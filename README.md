@@ -97,6 +97,7 @@ import { AgendaModule } from 'agenda-nest';
     AgendaModule.registerQueue('notifications', {
       processEvery: '5 minutes',
       autoStart: false, // default: true
+      collection: 'notificationsqueue', // default: notifications-queue (`${queueName}-queue`)
     }),
   ],
 })
@@ -126,14 +127,18 @@ export class NotificationsModule {}
 
 ## Job processors
 
-Job processors are methods defined on a class declared with the `@Queue(name: string)` decorator.  The queue name will be used to create the MongoDB collection, formatted as `"{queue Name}-queue"`, for each queue.
+Job processors are methods defined on a class declared with the `@Queue(name: string)` decorator.  The queue name will be used to create the MongoDB collection, formatted as `"{queue Name}-queue"`, for each queue. You can also specify your own collection name.
 
 ```js
 import { Queue } from 'agenda-nest';
 
+// will use a "notifications-queue" collection
 @Queue('notifications')
 export class NotificationsQueue {}
 
+// with custom collection name
+@Queue('notifications', { collection: 'notificationsqueue' })
+export class NotificationsQueue {}
 ```
 
 To **define**, but not schedule, a job on the queue, use the `@Define()` decorator as shown below.  To define a scheduled job, see [Job schedulers](#job-schedulers).

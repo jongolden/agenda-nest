@@ -159,5 +159,33 @@ describe('Agenda Module', () => {
 
       await testingModule.close();
     });
+
+    it('should use custom collection name', async () => {
+      const testingModule = await Test.createTestingModule({
+        imports: [
+          AgendaModule.forRootAsync({
+            useFactory: (mongoUri: string) => {
+              return { db: { address: mongoUri } };
+            },
+            inject: ['MONGO_URI'],
+            extraProviders: [databaseProvider],
+          }),
+          AgendaModule.registerQueue('jobs', {
+            collection: 'galactus',
+          }),
+        ],
+        providers: [JobsHandler],
+      }).compile();
+
+      const agenda = testingModule.get<Agenda>('jobs-queue', { strict: false });
+
+      await testingModule.init();
+
+      await wait(1000);
+
+      expect(agenda._collection.collectionName).toBe('galactus');
+
+      await testingModule.close();
+    });
   });
 });
