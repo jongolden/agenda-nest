@@ -55,7 +55,10 @@ export class AgendaOrchestrator
 
       this.attachEventListeners(queue, registry);
 
-      queue.mongo(this.database.getConnection(), queueToken);
+      queue.mongo(
+        this.database.getConnection(),
+        config.collection || queueToken,
+      );
 
       if (config.autoStart) {
         await queue.start();

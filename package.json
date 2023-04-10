@@ -56,7 +56,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.0",
     "jest": "^28.1.1",
-    "mongodb-memory-server": "^8.6.1",
+    "mongodb-memory-server": "^8.12.2",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",
