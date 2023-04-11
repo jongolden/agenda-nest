@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/jongolden/agenda-nest/compare/v2.0.0...v2.1.0) (2023-04-11)
+
+
+### Features
+
+* **examples:** update usage example ([ecf44be](https://github.com/jongolden/agenda-nest/commit/ecf44be9b3a877b84500f683c0a44dadc717e94f))
+* support custom collection name for queue ([#25](https://github.com/jongolden/agenda-nest/issues/25)) ([#26](https://github.com/jongolden/agenda-nest/issues/26)) ([25e22f5](https://github.com/jongolden/agenda-nest/commit/25e22f5e866abb3099067e7bfd775a767f4ecec5))
+
 ## [1.3.0](https://github.com/jongolden/agenda-nest/compare/v1.2.1...v1.3.0) (2023-03-05)
 
 
