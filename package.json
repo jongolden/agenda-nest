@@ -34,8 +34,8 @@
     "nestjs"
   ],
   "peerDependencies": {
-    "@nestjs/common": "8.x || 9.x",
-    "@nestjs/core": "8.x || 9.x",
+    "@nestjs/common": "8.x || 9.x || 10.x",
+    "@nestjs/core": "8.x || 9.x || 10.x",
     "agenda": "5.x"
   },
   "devDependencies": {
@@ -43,9 +43,9 @@
     "@commitlint/config-angular": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@jest/types": "^28.1.1",
-    "@nestjs/common": "^9.1.6",
-    "@nestjs/core": "^9.1.6",
-    "@nestjs/testing": "^9.1.6",
+    "@nestjs/common": "^10.0.3",
+    "@nestjs/core": "^10.0.3",
+    "@nestjs/testing": "^10.0.3",
     "@types/jest": "^28.1.2",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
