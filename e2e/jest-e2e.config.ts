@@ -8,11 +8,6 @@ const config: Config.InitialOptions = {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
   testEnvironment: 'node',
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.spec.json',
-    },
-  },
 };
 
 export default config;
