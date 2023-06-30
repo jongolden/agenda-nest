@@ -16,8 +16,8 @@ import { JobProcessorType } from '../enums';
 import { AgendaQueueConfig } from '../interfaces';
 import { DatabaseService } from './database.service';
 
-type JobProcessorConfig = {
-  handler: Processor;
+type JobProcessorConfig<T = any> = {
+  handler: Processor<T>;
   type: JobProcessorType;
   options: RepeatableJobOptions | NonRepeatableJobOptions;
   useCallback: boolean;
@@ -94,12 +94,12 @@ export class AgendaOrchestrator
 
   addJobProcessor(
     queueToken: string,
-    processor: Processor & Record<'_name', string>,
+    processor: Processor<unknown>,
     options: AgendaModuleJobOptions,
     type: JobProcessorType,
     useCallback: boolean,
   ) {
-    const jobName = options.name || processor._name;
+    const jobName = options.name || processor.name;
 
     this.queues.get(queueToken)?.processors.set(jobName, {
       handler: processor,

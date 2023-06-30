@@ -57,8 +57,10 @@ export class AgendaExplorer implements OnModuleInit {
               const jobOptions =
                 this.metadataAccessor.getJobProcessorMetadata(methodRef);
 
-              const jobProcessor: Processor & Record<'_name', string> =
-                this.wrapFunctionInTryCatchBlocks(methodRef, instance);
+              const jobProcessor = this.wrapFunctionInTryCatchBlocks(
+                methodRef,
+                instance as Processor<any>,
+              ) as Processor<unknown>;
 
               this.orchestrator.addJobProcessor(
                 queueToken,
@@ -71,7 +73,7 @@ export class AgendaExplorer implements OnModuleInit {
               const listener = this.wrapFunctionInTryCatchBlocks(
                 methodRef,
                 instance,
-              );
+              ) as EventListener;
 
               const eventName =
                 this.metadataAccessor.getListenerMetadata(methodRef);
@@ -90,18 +92,24 @@ export class AgendaExplorer implements OnModuleInit {
       });
   }
 
-  private wrapFunctionInTryCatchBlocks(methodRef: Function, instance: object) {
-    const handler = (...args: unknown[]) => {
-      try {
-        return methodRef.call(instance, ...args);
-      } catch (error) {
-        this.logger.error(error);
-        throw error;
-      }
-    };
+  private wrapFunctionInTryCatchBlocks(methodRef: Function, instance: unknown) {
+    return new Proxy(methodRef, {
+      apply: (target, thisArg, argArray) => {
+        try {
+          return target.call(instance, ...argArray);
+        } catch (error) {
+          this.logger.error(error);
+          throw error;
+        }
+      },
+      get: (target, propertyKey, receiver) => {
+        if (propertyKey === 'name') {
+          return methodRef.name;
+        }
 
-    handler._name = methodRef.name;
-
-    return handler;
+        // eslint-disable-next-line prefer-rest-params
+        return Reflect.get(target, propertyKey, receiver);
+      },
+    });
   }
 }
