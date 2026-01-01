@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import Agenda from 'agenda';
+import Agenda from 'agenda-ts';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AgendaModule } from '../lib';
 import { DatabaseService } from '../lib/providers/database.service';
@@ -125,10 +125,13 @@ describe('Agenda Module', () => {
 
       await testingModule.init();
 
+      await agenda._ready;
+
       await wait(1000);
 
       expect(agenda.start).toHaveBeenCalled();
 
+      await agenda.stop();
       await testingModule.close();
     });
 
@@ -154,6 +157,8 @@ describe('Agenda Module', () => {
       jest.spyOn(agenda, 'start');
 
       await testingModule.init();
+
+      await agenda._ready;
 
       expect(agenda.start).not.toHaveBeenCalled();
 
@@ -181,10 +186,13 @@ describe('Agenda Module', () => {
 
       await testingModule.init();
 
+      await agenda._ready;
+
       await wait(1000);
 
       expect(agenda._collection.collectionName).toBe('galactus');
 
+      await agenda.stop();
       await testingModule.close();
     });
   });

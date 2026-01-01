@@ -241,7 +241,7 @@ Event listeners must be declared within an injectable class (i.e., within a clas
 
 ```js
 import { OnQueueReady } from 'agenda-nest';
-import { Job } from 'agenda';
+import { Job } from 'agenda-ts';
 
 @Queue()
 export class JobsQueue {

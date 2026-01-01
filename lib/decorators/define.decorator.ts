@@ -1,5 +1,5 @@
 import { applyDecorators, SetMetadata } from '@nestjs/common';
-import { DefineOptions } from 'agenda';
+import { DefineOptions } from 'agenda-ts';
 import { JOB_PROCESSOR_TYPE, AGENDA_JOB_OPTIONS } from '../constants';
 import { JobProcessorType } from '../enums';
 

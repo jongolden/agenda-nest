@@ -1,4 +1,4 @@
-import Agenda, { AgendaConfig } from 'agenda';
+import Agenda, { AgendaConfig } from 'agenda-ts';
 
 export function agendaFactory(
   queueConfig: AgendaConfig,

@@ -1,7 +1,7 @@
 import {
   DefineOptions as AgendaDefineOptions,
   JobOptions as AgendaJobOptions,
-} from 'agenda';
+} from 'agenda-ts';
 
 export type JobOptions = AgendaDefineOptions &
   AgendaJobOptions & { name?: string };

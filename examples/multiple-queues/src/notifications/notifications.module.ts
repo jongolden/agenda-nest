@@ -1,6 +1,6 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import Agenda from 'agenda';
+import Agenda from 'agenda-ts';
 import { AgendaModule } from 'agenda-nest';
 import { NotificationsQueue } from './notifications.queue';
 

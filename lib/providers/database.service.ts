@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AgendaConfig } from 'agenda';
+import { AgendaConfig } from 'agenda-ts';
 import { Db, MongoClient } from 'mongodb';
 import { AGENDA_MODULE_CONFIG } from '../constants';
 
@@ -40,7 +40,11 @@ export class DatabaseService {
 
   async disconnect() {
     if (this.client) {
-      await this.client.close();
+      try {
+        await this.client.close();
+      } catch {
+        // Client may already be closed
+      }
     }
   }
 }
